@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('deliveries', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('driver_id')->constrained()->cascadeOnDelete();
             $table->foreignId('truck_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('driver_id')->constrained()->cascadeOnDelete();
+            $table->string('origin');
             $table->string('destination');
-            $table->enum('status', ['en cours', 'livré'])->default('en cours');
-            $table->date('delivery_date')->nullable();
+            $table->enum('status', ['pending', 'in_progress', 'completed'])->default('pending');
+            $table->dateTime('departure_date');
+            $table->dateTime('arrival_date')->nullable();
             $table->timestamps();
         });
     }

@@ -13,9 +13,11 @@ return new class extends Migration
     {
         Schema::create('drivers', function (Blueprint $table) {
             $table->id();
-            $table->string('full_name');
-            $table->string('license_number')->unique()->nullable();
-            $table->string('phone')->nullable();
+            $table->string('name');
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('license_number')->unique();
+            $table->string('phone');
+            $table->enum('status', ['available', 'busy', 'inactive'])->default('available');
             $table->timestamps();
         });
     }

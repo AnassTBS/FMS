@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('trucks', function (Blueprint $table) {
             $table->id();
-            $table->string('registration')->unique();
-            $table->string('model')->nullable();
-            $table->double('current_mileage')->default(0);
+            $table->string('registration_number')->unique();
+            $table->string('model');
+            $table->integer('capacity');
+            $table->enum('status', ['available', 'in_use', 'maintenance'])->default('available');
             $table->timestamps();
         });
     }

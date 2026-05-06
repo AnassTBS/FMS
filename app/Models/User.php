@@ -6,12 +6,21 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    /**
+     * Get the driver profile associated with the user.
+     */
+    public function driver(): HasOne
+    {
+        return $this->hasOne(Driver::class);
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -22,7 +31,32 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
+
+    /**
+     * Check if user is an admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is a dispatcher.
+     */
+    public function isDispatcher(): bool
+    {
+        return $this->role === 'dispatcher';
+    }
+
+    /**
+     * Check if user is a driver.
+     */
+    public function isDriver(): bool
+    {
+        return $this->role === 'driver';
+    }
 
     /**
      * The attributes that should be hidden for serialization.
