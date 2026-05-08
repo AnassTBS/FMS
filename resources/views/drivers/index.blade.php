@@ -4,9 +4,11 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Driver Management') }}
             </h2>
+            @if(Auth::user()->isAdmin() || Auth::user()->isDispatcher())
             <a href="{{ route('drivers.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150">
                 + Add New Driver
             </a>
+            @endif
         </div>
     </x-slot>
 
@@ -14,42 +16,63 @@
         <div class="p-6 bg-white border-b border-gray-200">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                    <thead class="bg-gray-50/50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">License Number</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Driver Details</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">License</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="bg-white divide-y divide-gray-100">
                         @forelse($drivers as $driver)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $driver->name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $driver->license_number }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $driver->phone }}</td>
+                            <tr class="hover:bg-gray-50/50 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="bg-indigo-50 p-2 rounded-lg text-indigo-600">
+                                            <i data-lucide="user" class="w-5 h-5"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-bold text-gray-900">{{ $driver->name }}</div>
+                                            <div class="text-xs text-gray-500">{{ $driver->phone }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                    <span class="font-medium">{{ $driver->license_number }}</span>
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @php
                                         $statusClasses = [
-                                            'available' => 'bg-green-100 text-green-800',
-                                            'busy' => 'bg-blue-100 text-blue-800',
-                                            'inactive' => 'bg-red-100 text-red-800',
+                                            'available' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                            'busy' => 'bg-blue-50 text-blue-700 border-blue-200',
+                                            'inactive' => 'bg-rose-50 text-rose-700 border-rose-200',
                                         ];
-                                        $class = $statusClasses[$driver->status] ?? 'bg-gray-100 text-gray-800';
+                                        $class = $statusClasses[$driver->status] ?? 'bg-gray-50 text-gray-700 border-gray-200';
                                     @endphp
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $class }}">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border {{ $class }}">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-current mr-1.5"></span>
                                         {{ ucfirst($driver->status) }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                    <a href="{{ route('drivers.show', $driver) }}" class="text-indigo-600 hover:text-indigo-900">View</a>
-                                    <a href="{{ route('drivers.edit', $driver) }}" class="text-yellow-600 hover:text-yellow-900">Edit</a>
-                                    <form action="{{ route('drivers.destroy', $driver) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
-                                    </form>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <div class="flex justify-end items-center gap-3">
+                                        <a href="{{ route('drivers.show', $driver) }}" class="p-1 text-gray-400 hover:text-indigo-600 transition-colors" title="View Details">
+                                            <i data-lucide="eye" class="w-5 h-5"></i>
+                                        </a>
+                                        @if(Auth::user()->isAdmin() || Auth::user()->isDispatcher())
+                                        <a href="{{ route('drivers.edit', $driver) }}" class="p-1 text-gray-400 hover:text-amber-600 transition-colors" title="Edit">
+                                            <i data-lucide="edit-3" class="w-5 h-5"></i>
+                                        </a>
+                                        <form action="{{ route('drivers.destroy', $driver) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="p-1 text-gray-400 hover:text-red-600 transition-colors" title="Delete">
+                                                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                            </button>
+                                        </form>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @empty

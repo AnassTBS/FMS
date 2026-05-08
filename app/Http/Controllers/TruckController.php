@@ -8,8 +8,17 @@ use App\Http\Requests\UpdateTruckRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
-class TruckController extends Controller
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+class TruckController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('role:admin|dispatcher', except: ['index', 'show']),
+        ];
+    }
     /**
      * Display a listing of the trucks.
      */

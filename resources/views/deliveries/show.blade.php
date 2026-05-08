@@ -15,66 +15,105 @@
         </div>
     </x-slot>
 
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-        <div class="p-6 bg-white border-b border-gray-200">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Trip Information -->
-                <div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-4 border-b pb-2">Trip Information</h3>
-                    <dl class="grid grid-cols-1 gap-y-4">
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Route</dt>
-                            <dd class="mt-1 text-sm text-gray-900 font-semibold">{{ $delivery->origin }} → {{ $delivery->destination }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Status</dt>
-                            <dd class="mt-1 text-sm">
-                                @php
-                                    $statusClasses = [
-                                        'pending' => 'bg-yellow-100 text-yellow-800',
-                                        'in_progress' => 'bg-blue-100 text-blue-800',
-                                        'completed' => 'bg-green-100 text-green-800',
-                                    ];
-                                    $class = $statusClasses[$delivery->status] ?? 'bg-gray-100 text-gray-800';
-                                @endphp
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $class }}">
-                                    {{ ucfirst(str_replace('_', ' ', $delivery->status)) }}
-                                </span>
-                            </dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Departure Date</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ $delivery->departure_date->format('F d, Y - H:i') }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Arrival Date</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
-                                {{ $delivery->arrival_date ? $delivery->arrival_date->format('F d, Y - H:i') : 'Not arrived yet' }}
-                            </dd>
-                        </div>
-                    </dl>
+    <div class="space-y-6">
+        <!-- Overview Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
+                <div class="bg-indigo-50 p-3 rounded-lg text-indigo-600">
+                    <i data-lucide="package" class="w-6 h-6"></i>
                 </div>
-
-                <!-- Assignment Information -->
                 <div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-4 border-b pb-2">Assignments</h3>
-                    <dl class="grid grid-cols-1 gap-y-4">
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Truck Assigned</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
-                                <p class="font-semibold">{{ $delivery->truck->registration_number }}</p>
-                                <p class="text-gray-500 text-xs">{{ $delivery->truck->model }}</p>
-                            </dd>
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Status</p>
+                    @php
+                        $statusClasses = [
+                            'pending' => 'text-amber-600',
+                            'in_progress' => 'text-blue-600',
+                            'completed' => 'text-emerald-600',
+                        ];
+                        $class = $statusClasses[$delivery->status] ?? 'text-gray-600';
+                    @endphp
+                    <p class="text-lg font-bold {{ $class }}">{{ ucfirst(str_replace('_', ' ', $delivery->status)) }}</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
+                <div class="bg-indigo-50 p-3 rounded-lg text-indigo-600">
+                    <i data-lucide="map-pin" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Route</p>
+                    <p class="text-sm font-bold text-gray-900">{{ $delivery->origin }} → {{ $delivery->destination }}</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
+                <div class="bg-indigo-50 p-3 rounded-lg text-indigo-600">
+                    <i data-lucide="calendar" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Departure</p>
+                    <p class="text-sm font-bold text-gray-900">{{ $delivery->departure_date->format('M d, Y') }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Assignment Details -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                    <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
+                        <i data-lucide="users" class="w-4 h-4 text-indigo-600"></i>
+                        Assignments
+                    </h3>
+                </div>
+                <div class="p-6 space-y-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">
+                            <i data-lucide="truck" class="w-6 h-6"></i>
                         </div>
                         <div>
-                            <dt class="text-sm font-medium text-gray-500">Driver Assigned</dt>
-                            <dd class="mt-1 text-sm text-gray-900 font-semibold">{{ $delivery->driver->full_name }}</dd>
+                            <p class="text-xs font-medium text-gray-500">Truck Assigned</p>
+                            <p class="text-sm font-bold text-gray-900">{{ $delivery->truck->registration_number }}</p>
+                            <p class="text-xs text-gray-500">{{ $delivery->truck->model }}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">
+                            <i data-lucide="user" class="w-6 h-6"></i>
                         </div>
                         <div>
-                            <dt class="text-sm font-medium text-gray-500">Created At</dt>
-                            <dd class="mt-1 text-sm text-gray-900 text-xs">{{ $delivery->created_at->format('M d, Y H:i') }}</dd>
+                            <p class="text-xs font-medium text-gray-500">Driver Assigned</p>
+                            <p class="text-sm font-bold text-gray-900">{{ $delivery->driver->full_name }}</p>
+                            <p class="text-xs text-gray-500">{{ $delivery->driver->phone }}</p>
                         </div>
-                    </dl>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Details -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                    <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
+                        <i data-lucide="clock" class="w-4 h-4 text-indigo-600"></i>
+                        Schedule Information
+                    </h3>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div class="flex justify-between items-center py-2 border-b border-gray-50">
+                        <span class="text-sm text-gray-500">Departure Time</span>
+                        <span class="text-sm font-bold text-gray-900">{{ $delivery->departure_date->format('M d, Y H:i') }}</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 border-b border-gray-50">
+                        <span class="text-sm text-gray-500">Estimated Arrival</span>
+                        <span class="text-sm font-bold text-gray-900">
+                            {{ $delivery->arrival_date ? $delivery->arrival_date->format('M d, Y H:i') : 'Pending' }}
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 border-b border-gray-50">
+                        <span class="text-sm text-gray-500">Created At</span>
+                        <span class="text-sm font-medium text-gray-400">{{ $delivery->created_at->format('M d, Y H:i') }}</span>
+                    </div>
                 </div>
             </div>
         </div>

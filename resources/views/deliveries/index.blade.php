@@ -14,53 +14,81 @@
         <div class="p-6 bg-white border-b border-gray-200">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                    <thead class="bg-gray-50/50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Truck</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Driver</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Route</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Departure</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Assigned Fleet</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Route</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Schedule</th>
+                            <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="bg-white divide-y divide-gray-100">
                         @forelse($deliveries as $delivery)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">{{ $delivery->truck->registration_number }}</div>
-                                    <div class="text-sm text-gray-500">{{ $delivery->truck->model }}</div>
+                            <tr class="hover:bg-gray-50/50 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-start flex-col gap-1">
+                                        <div class="flex items-center gap-1.5">
+                                            <i data-lucide="truck" class="w-3.5 h-3.5 text-gray-400"></i>
+                                            <span class="text-sm font-semibold text-gray-900">{{ $delivery->truck->registration_number }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-1.5">
+                                            <i data-lucide="user" class="w-3.5 h-3.5 text-gray-400"></i>
+                                            <span class="text-xs text-gray-500">{{ $delivery->driver->full_name }}</span>
+                                        </div>
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ $delivery->driver->full_name }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ $delivery->origin }} → {{ $delivery->destination }}</div>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-medium text-gray-900">{{ $delivery->origin }}</span>
+                                            <span class="text-xs text-gray-400">Departure</span>
+                                        </div>
+                                        <i data-lucide="arrow-right" class="w-4 h-4 text-gray-300"></i>
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-medium text-gray-900">{{ $delivery->destination }}</span>
+                                            <span class="text-xs text-gray-400">Destination</span>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @php
                                         $statusClasses = [
-                                            'pending' => 'bg-yellow-100 text-yellow-800',
-                                            'in_progress' => 'bg-blue-100 text-blue-800',
-                                            'completed' => 'bg-green-100 text-green-800',
+                                            'pending' => 'bg-amber-50 text-amber-700 border-amber-200',
+                                            'in_progress' => 'bg-blue-50 text-blue-700 border-blue-200',
+                                            'completed' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
                                         ];
-                                        $class = $statusClasses[$delivery->status] ?? 'bg-gray-100 text-gray-800';
+                                        $class = $statusClasses[$delivery->status] ?? 'bg-gray-50 text-gray-700 border-gray-200';
                                     @endphp
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $class }}">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border {{ $class }}">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-current mr-1.5"></span>
                                         {{ ucfirst(str_replace('_', ' ', $delivery->status)) }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $delivery->departure_date->format('M d, Y H:i') }}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                    <div class="flex flex-col">
+                                        <span class="font-medium">{{ $delivery->departure_date->format('M d, Y') }}</span>
+                                        <span class="text-xs text-gray-400">{{ $delivery->departure_date->format('H:i') }}</span>
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                    <a href="{{ route('deliveries.show', $delivery) }}" class="text-indigo-600 hover:text-indigo-900">View</a>
-                                    <a href="{{ route('deliveries.edit', $delivery) }}" class="text-yellow-600 hover:text-yellow-900">Edit</a>
-                                    <form action="{{ route('deliveries.destroy', $delivery) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
-                                    </form>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <div class="flex justify-end items-center gap-3">
+                                        <a href="{{ route('deliveries.show', $delivery) }}" class="p-1 text-gray-400 hover:text-indigo-600 transition-colors" title="View Details">
+                                            <i data-lucide="eye" class="w-5 h-5"></i>
+                                        </a>
+                                        @if(Auth::user()->isAdmin() || Auth::user()->isDispatcher())
+                                        <a href="{{ route('deliveries.edit', $delivery) }}" class="p-1 text-gray-400 hover:text-amber-600 transition-colors" title="Edit">
+                                            <i data-lucide="edit-3" class="w-5 h-5"></i>
+                                        </a>
+                                        <form action="{{ route('deliveries.destroy', $delivery) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="p-1 text-gray-400 hover:text-red-600 transition-colors" title="Delete">
+                                                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                            </button>
+                                        </form>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @empty

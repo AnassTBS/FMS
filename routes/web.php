@@ -1,11 +1,16 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TruckController;
 use App\Http\Controllers\DriverController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\FuelEntryController;
+use App\Http\Controllers\MaintenanceController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -24,6 +29,18 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 // Dashboard & Role Protected Routes
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Admin Only
+    Route::resource('users', UserController::class);
+
+    // Activity Logs
+    Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+
+    // Fuel Entries
+    Route::resource('fuel-entries', FuelEntryController::class);
+
+    // Maintenances
+    Route::resource('maintenances', MaintenanceController::class);
 
     // Deliveries (Accessible by Admin and Dispatcher, restricted view for Driver)
     Route::resource('deliveries', DeliveryController::class);

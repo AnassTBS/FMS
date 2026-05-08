@@ -15,6 +15,14 @@ class Driver extends Model
     protected $fillable = ['name', 'license_number', 'phone', 'status', 'user_id'];
 
     /**
+     * Get the driver's full name.
+     */
+    public function getFullNameAttribute(): string
+    {
+        return $this->name;
+    }
+
+    /**
      * Get the user that owns the driver profile.
      */
     public function user(): BelongsTo

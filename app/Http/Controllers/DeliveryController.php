@@ -12,11 +12,16 @@ use Illuminate\View\View;
 
 use Illuminate\Support\Facades\Auth;
 
-class DeliveryController extends Controller
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+class DeliveryController extends Controller implements HasMiddleware
 {
-    public function __construct()
+    public static function middleware(): array
     {
-        $this->middleware('role:admin|dispatcher')->only(['create', 'store', 'destroy']);
+        return [
+            new Middleware('role:admin|dispatcher', only: ['create', 'store', 'destroy']),
+        ];
     }
 
     /**
@@ -40,8 +45,9 @@ class DeliveryController extends Controller
      */
     public function create(): View
     {
-        $trucks = Truck::all();
-        $drivers = Driver::all();
+        // Only show available trucks and drivers
+        $trucks = Truck::where('status', 'available')->get();
+        $drivers = Driver::where('status', 'available')->get();
         return view('deliveries.create', compact('trucks', 'drivers'));
     }
 
@@ -50,7 +56,9 @@ class DeliveryController extends Controller
      */
     public function store(StoreDeliveryRequest $request): RedirectResponse
     {
-        Delivery::create($request->validated());
+        $delivery = Delivery::create($request->validated());
+        
+        $this->syncEntityStatuses($delivery);
 
         return redirect()->route('deliveries.index')
             ->with('success', 'Delivery created successfully.');
@@ -78,8 +86,14 @@ class DeliveryController extends Controller
             abort(403);
         }
 
-        $trucks = Truck::all();
-        $drivers = Driver::all();
+        // Show available trucks/drivers + the currently assigned ones
+        $trucks = Truck::where('status', 'available')
+            ->orWhere('id', $delivery->truck_id)
+            ->get();
+        $drivers = Driver::where('status', 'available')
+            ->orWhere('id', $delivery->driver_id)
+            ->get();
+            
         return view('deliveries.edit', compact('delivery', 'trucks', 'drivers'));
     }
 
@@ -88,15 +102,27 @@ class DeliveryController extends Controller
      */
     public function update(UpdateDeliveryRequest $request, Delivery $delivery): RedirectResponse
     {
+        $oldTruckId = $delivery->truck_id;
+        $oldDriverId = $delivery->driver_id;
+
         if (Auth::user()->isDriver()) {
             if (Auth::user()->driver->id !== $delivery->driver_id) {
                 abort(403);
             }
-            // Drivers can only update status
             $delivery->update(['status' => $request->status]);
         } else {
             $delivery->update($request->validated());
         }
+
+        // If truck or driver changed, reset the old ones to available
+        if ($oldTruckId !== $delivery->truck_id) {
+            Truck::find($oldTruckId)->update(['status' => 'available']);
+        }
+        if ($oldDriverId !== $delivery->driver_id) {
+            Driver::find($oldDriverId)->update(['status' => 'available']);
+        }
+
+        $this->syncEntityStatuses($delivery);
 
         return redirect()->route('deliveries.index')
             ->with('success', 'Delivery updated successfully.');
@@ -107,13 +133,35 @@ class DeliveryController extends Controller
      */
     public function destroy(Delivery $delivery): RedirectResponse
     {
-        if (!Auth::user()->isAdmin()) {
-            abort(403);
-        }
+        // Reset truck and driver to available before deleting
+        $delivery->truck->update(['status' => 'available']);
+        $delivery->driver->update(['status' => 'available']);
 
         $delivery->delete();
 
         return redirect()->route('deliveries.index')
             ->with('success', 'Delivery deleted successfully.');
+    }
+
+    /**
+     * Sync truck and driver statuses based on delivery status.
+     */
+    private function syncEntityStatuses(Delivery $delivery): void
+    {
+        $truck = $delivery->truck;
+        $driver = $delivery->driver;
+
+        if ($delivery->status === 'in_progress') {
+            $truck->update(['status' => 'on_delivery']);
+            $driver->update(['status' => 'busy']);
+        } elseif ($delivery->status === 'completed') {
+            $truck->update(['status' => 'available']);
+            $driver->update(['status' => 'available']);
+        } else {
+            // For 'pending', check if they should be available (unless busy with another)
+            // But validation prevents multiple active assignments, so we can safely reset.
+            $truck->update(['status' => 'available']);
+            $driver->update(['status' => 'available']);
+        }
     }
 }

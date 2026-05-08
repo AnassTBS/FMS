@@ -3,63 +3,77 @@
 namespace App\Http\Controllers;
 
 use App\Models\FuelEntry;
+use App\Models\Truck;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class FuelEntryController extends Controller
+class FuelEntryController extends Controller implements HasMiddleware
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public static function middleware(): array
     {
-        //
+        return [
+            // Only admin/dispatcher can delete or see all, drivers can add
+            new Middleware('role:admin|dispatcher|driver'),
+        ];
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Display a listing of the fuel entries.
      */
-    public function create()
+    public function index(): View
     {
-        //
+        $query = FuelEntry::with('truck')->latest();
+
+        // If driver, maybe they only see their truck's fuel? 
+        // For now, let's keep it simple or filter by truck if needed.
+
+        $fuelEntries = $query->paginate(15);
+        return view('fuel_entries.index', compact('fuelEntries'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Show the form for creating a new fuel entry.
      */
-    public function store(Request $request)
+    public function create(): View
     {
-        //
+        $trucks = Truck::orderBy('registration_number')->get();
+        return view('fuel_entries.create', compact('trucks'));
     }
 
     /**
-     * Display the specified resource.
+     * Store a newly created fuel entry in storage.
      */
-    public function show(FuelEntry $fuelEntry)
+    public function store(Request $request): RedirectResponse
     {
-        //
+        $validated = $request->validate([
+            'truck_id' => 'required|exists:trucks,id',
+            'date' => 'required|date',
+            'liters' => 'required|numeric|min:0.1',
+            'amount' => 'required|numeric|min:0.1',
+            'mileage' => 'required|numeric|min:0',
+        ]);
+
+        FuelEntry::create($validated);
+
+        return redirect()->route('fuel-entries.index')
+            ->with('success', 'Fuel entry recorded successfully.');
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Remove the specified fuel entry from storage.
      */
-    public function edit(FuelEntry $fuelEntry)
+    public function destroy(FuelEntry $fuelEntry): RedirectResponse
     {
-        //
-    }
+        if (!auth()->user()->isAdmin() && !auth()->user()->isDispatcher()) {
+            abort(403);
+        }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, FuelEntry $fuelEntry)
-    {
-        //
-    }
+        $fuelEntry->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(FuelEntry $fuelEntry)
-    {
-        //
+        return redirect()->route('fuel-entries.index')
+            ->with('success', 'Fuel entry deleted successfully.');
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -30,6 +31,8 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+
+            ActivityLog::log('login', 'User logged in');
 
             return redirect()->intended('/dashboard');
         }
@@ -76,6 +79,7 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        ActivityLog::log('logout', 'User logged out');
         Auth::logout();
 
         $request->session()->invalidate();

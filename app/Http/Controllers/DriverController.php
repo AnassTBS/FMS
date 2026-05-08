@@ -8,8 +8,17 @@ use App\Http\Requests\UpdateDriverRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
-class DriverController extends Controller
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+class DriverController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('role:admin|dispatcher', except: ['index', 'show']),
+        ];
+    }
     /**
      * Display a listing of the drivers.
      */
