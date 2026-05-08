@@ -1,22 +1,26 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Driver Management') }}
-            </h2>
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-xs font-extrabold uppercase tracking-widest text-indigo-600">People operations</p>
+                <h2 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-950">
+                    {{ __('Driver Management') }}
+                </h2>
+            </div>
             @if(Auth::user()->isAdmin() || Auth::user()->isDispatcher())
-            <a href="{{ route('drivers.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150">
-                + Add New Driver
+            <a href="{{ route('drivers.create') }}" class="btn-primary">
+                <i data-lucide="plus" class="h-4 w-4"></i>
+                Add New Driver
             </a>
             @endif
         </div>
     </x-slot>
 
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-        <div class="p-6 bg-white border-b border-gray-200">
+    <div class="surface">
+        <div class="p-0">
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50/50">
+                <table class="min-w-full divide-y divide-slate-100">
+                    <thead>
                         <tr>
                             <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Driver Details</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">License</th>
@@ -24,12 +28,12 @@
                             <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-100">
+                    <tbody class="bg-white divide-y divide-slate-100">
                         @forelse($drivers as $driver)
-                            <tr class="hover:bg-gray-50/50 transition-colors">
+                            <tr>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="bg-indigo-50 p-2 rounded-lg text-indigo-600">
+                                        <div class="rounded-xl bg-indigo-50 p-2 text-indigo-600">
                                             <i data-lucide="user" class="w-5 h-5"></i>
                                         </div>
                                         <div>
@@ -50,24 +54,24 @@
                                         ];
                                         $class = $statusClasses[$driver->status] ?? 'bg-gray-50 text-gray-700 border-gray-200';
                                     @endphp
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border {{ $class }}">
+                                    <span class="status-badge {{ $class }}">
                                         <span class="w-1.5 h-1.5 rounded-full bg-current mr-1.5"></span>
                                         {{ ucfirst($driver->status) }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex justify-end items-center gap-3">
-                                        <a href="{{ route('drivers.show', $driver) }}" class="p-1 text-gray-400 hover:text-indigo-600 transition-colors" title="View Details">
+                                        <a href="{{ route('drivers.show', $driver) }}" class="action-icon" title="View Details">
                                             <i data-lucide="eye" class="w-5 h-5"></i>
                                         </a>
                                         @if(Auth::user()->isAdmin() || Auth::user()->isDispatcher())
-                                        <a href="{{ route('drivers.edit', $driver) }}" class="p-1 text-gray-400 hover:text-amber-600 transition-colors" title="Edit">
+                                        <a href="{{ route('drivers.edit', $driver) }}" class="action-icon hover:!text-amber-600" title="Edit">
                                             <i data-lucide="edit-3" class="w-5 h-5"></i>
                                         </a>
                                         <form action="{{ route('drivers.destroy', $driver) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure?')">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="p-1 text-gray-400 hover:text-red-600 transition-colors" title="Delete">
+                                            <button type="submit" class="action-icon hover:!text-red-600" title="Delete">
                                                 <i data-lucide="trash-2" class="w-5 h-5"></i>
                                             </button>
                                         </form>
@@ -77,7 +81,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                <td colspan="5" class="px-6 py-12 text-center text-sm font-bold text-slate-500">
                                     No drivers found.
                                 </td>
                             </tr>
@@ -85,7 +89,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="mt-4">
+            <div class="border-t border-slate-100 px-6 py-4">
                 {{ $drivers->links() }}
             </div>
         </div>

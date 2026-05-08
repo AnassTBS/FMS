@@ -1,14 +1,17 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Delivery Details') }} #{{ $delivery->id }}
-            </h2>
-            <div class="space-x-2">
-                <a href="{{ route('deliveries.edit', $delivery) }}" class="inline-flex items-center px-4 py-2 bg-yellow-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-yellow-700 active:bg-yellow-900 focus:outline-none focus:border-yellow-900 focus:ring ring-yellow-300 disabled:opacity-25 transition ease-in-out duration-150">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-xs font-extrabold uppercase tracking-widest text-indigo-600">Delivery record</p>
+                <h2 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-950">
+                    {{ __('Delivery Details') }} #{{ $delivery->id }}
+                </h2>
+            </div>
+            <div class="flex gap-2">
+                <a href="{{ route('deliveries.edit', $delivery) }}" class="btn-secondary">
                     Edit
                 </a>
-                <a href="{{ route('deliveries.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
+                <a href="{{ route('deliveries.index') }}" class="btn-secondary">
                     Back to List
                 </a>
             </div>
@@ -42,7 +45,11 @@
                 </div>
                 <div>
                     <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Route</p>
-                    <p class="text-sm font-bold text-gray-900">{{ $delivery->origin }} → {{ $delivery->destination }}</p>
+                    <p class="flex items-center gap-2 text-sm font-bold text-gray-900">
+                        <span>{{ $delivery->origin }}</span>
+                        <i data-lucide="arrow-right" class="h-3.5 w-3.5 text-slate-400"></i>
+                        <span>{{ $delivery->destination }}</span>
+                    </p>
                 </div>
             </div>
 

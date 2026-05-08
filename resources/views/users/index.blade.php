@@ -1,20 +1,24 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('User Management') }}
-            </h2>
-            <a href="{{ route('users.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150">
-                + Add New User
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-xs font-extrabold uppercase tracking-widest text-indigo-600">Access control</p>
+                <h2 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-950">
+                    {{ __('User Management') }}
+                </h2>
+            </div>
+            <a href="{{ route('users.create') }}" class="btn-primary">
+                <i data-lucide="plus" class="h-4 w-4"></i>
+                Add New User
             </a>
         </div>
     </x-slot>
 
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-        <div class="p-6 bg-white border-b border-gray-200">
+    <div class="surface">
+        <div class="p-0">
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50/50">
+                <table class="min-w-full divide-y divide-slate-100">
+                    <thead>
                         <tr>
                             <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">User</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Role</th>
@@ -22,12 +26,12 @@
                             <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-100">
+                    <tbody class="bg-white divide-y divide-slate-100">
                         @foreach($users as $user)
-                            <tr class="hover:bg-gray-50/50 transition-colors">
+                            <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold">
+                                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-sm font-extrabold text-indigo-600">
                                             {{ strtoupper(substr($user->name, 0, 1)) }}
                                         </div>
                                         <div class="ml-4">
@@ -45,7 +49,7 @@
                                         ];
                                         $class = $roleClasses[$user->role] ?? 'bg-gray-100 text-gray-700 border-gray-200';
                                     @endphp
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border {{ $class }}">
+                                    <span class="status-badge {{ $class }}">
                                         {{ ucfirst($user->role) }}
                                     </span>
                                 </td>
@@ -54,13 +58,13 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex justify-end items-center gap-3">
-                                        <a href="{{ route('users.edit', $user) }}" class="p-1 text-gray-400 hover:text-amber-600 transition-colors" title="Edit">
+                                        <a href="{{ route('users.edit', $user) }}" class="action-icon hover:!text-amber-600" title="Edit">
                                             <i data-lucide="edit-3" class="w-5 h-5"></i>
                                         </a>
                                         <form action="{{ route('users.destroy', $user) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure?')">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="p-1 text-gray-400 hover:text-red-600 transition-colors" title="Delete">
+                                            <button type="submit" class="action-icon hover:!text-red-600" title="Delete">
                                                 <i data-lucide="trash-2" class="w-5 h-5"></i>
                                             </button>
                                         </form>
@@ -71,7 +75,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="mt-4">
+            <div class="border-t border-slate-100 px-6 py-4">
                 {{ $users->links() }}
             </div>
         </div>

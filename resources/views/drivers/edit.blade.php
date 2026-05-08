@@ -1,12 +1,15 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Edit Driver') }}: {{ $driver->name }}
-        </h2>
+        <div>
+            <p class="text-xs font-extrabold uppercase tracking-widest text-indigo-600">People operations</p>
+            <h2 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-950">
+                {{ __('Edit Driver') }}: {{ $driver->name }}
+            </h2>
+        </div>
     </x-slot>
 
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-        <div class="p-6 bg-white border-b border-gray-200">
+    <div class="surface">
+        <div class="p-6">
             <form action="{{ route('drivers.update', $driver) }}" method="POST">
                 @csrf
                 @method('PUT')
@@ -41,11 +44,11 @@
                     </div>
                 </div>
 
-                <div class="mt-8 flex justify-end space-x-3">
-                    <a href="{{ route('drivers.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:ring ring-blue-200 active:text-gray-800 active:bg-gray-50 disabled:opacity-25 transition ease-in-out duration-150">
+                <div class="mt-8 flex justify-end space-x-3 border-t border-slate-100 pt-6">
+                    <a href="{{ route('drivers.index') }}" class="btn-secondary">
                         Cancel
                     </a>
-                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150">
+                    <button type="submit" class="btn-primary">
                         Update Driver
                     </button>
                 </div>

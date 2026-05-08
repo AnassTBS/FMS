@@ -1,13 +1,16 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Add New User') }}
-        </h2>
+        <div>
+            <p class="text-xs font-extrabold uppercase tracking-widest text-indigo-600">Access control</p>
+            <h2 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-950">
+                {{ __('Add New User') }}
+            </h2>
+        </div>
     </x-slot>
 
     <div class="max-w-2xl mx-auto">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6 bg-white border-b border-gray-200">
+        <div class="surface">
+            <div class="p-6">
                 <form action="{{ route('users.store') }}" method="POST">
                     @csrf
                     
@@ -45,11 +48,11 @@
                         </div>
                     </div>
 
-                    <div class="mt-8 flex justify-end space-x-3">
-                        <a href="{{ route('users.index') }}" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                    <div class="mt-8 flex justify-end space-x-3 border-t border-slate-100 pt-6">
+                        <a href="{{ route('users.index') }}" class="btn-secondary">
                             Cancel
                         </a>
-                        <button type="submit" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                        <button type="submit" class="btn-primary">
                             Create User
                         </button>
                     </div>

@@ -1,13 +1,16 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('System Activity Logs') }}
-        </h2>
+        <div>
+            <p class="text-xs font-extrabold uppercase tracking-widest text-indigo-600">Audit trail</p>
+            <h2 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-950">
+                {{ __('System Activity Logs') }}
+            </h2>
+        </div>
     </x-slot>
 
     <div class="space-y-6">
         <!-- Filters -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div class="surface p-6">
             <form action="{{ route('activity-logs.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <div>
                     <label for="user_id" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">User</label>
@@ -29,10 +32,10 @@
                         class="w-full rounded-lg border-gray-200 text-sm focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
                 <div class="flex gap-2">
-                    <button type="submit" class="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-indigo-700 transition-colors">
+                    <button type="submit" class="btn-primary flex-1">
                         Filter
                     </button>
-                    <a href="{{ route('activity-logs.index') }}" class="px-4 py-2 border border-gray-200 rounded-lg text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors">
+                    <a href="{{ route('activity-logs.index') }}" class="btn-secondary">
                         Reset
                     </a>
                 </div>
@@ -40,7 +43,7 @@
         </div>
 
         <!-- Timeline View -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="surface">
             <div class="p-6">
                 <div class="flow-root">
                     <ul role="list" class="-mb-8">
