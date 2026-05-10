@@ -13,7 +13,7 @@ class StoreDeliveryRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->isAdmin() || $this->user()?->isDispatcher();
     }
 
     /**
@@ -32,7 +32,7 @@ class StoreDeliveryRequest extends FormRequest
                     }
 
                     $activeDelivery = Delivery::where('truck_id', $value)
-                        ->where('status', 'in_progress')
+                        ->whereIn('status', [Delivery::STATUS_ASSIGNED, Delivery::STATUS_IN_TRANSIT])
                         ->exists();
                     if ($activeDelivery) {
                         $fail('The selected truck is already assigned to an active delivery.');
@@ -49,7 +49,7 @@ class StoreDeliveryRequest extends FormRequest
                     }
 
                     $activeDelivery = Delivery::where('driver_id', $value)
-                        ->where('status', 'in_progress')
+                        ->whereIn('status', [Delivery::STATUS_ASSIGNED, Delivery::STATUS_IN_TRANSIT])
                         ->exists();
                     if ($activeDelivery) {
                         $fail('The selected driver already has an active delivery.');
@@ -58,13 +58,13 @@ class StoreDeliveryRequest extends FormRequest
             ],
             'origin' => 'required|string|max:255',
             'destination' => 'required|string|max:255',
-            'status' => 'required|in:pending,in_progress,completed',
+            'status' => ['required', Rule::in(Delivery::statuses())],
             'departure_date' => 'required|date',
             'arrival_date' => [
                 'nullable',
                 'date',
                 'after:departure_date',
-                Rule::requiredIf($this->status === 'completed'),
+                Rule::requiredIf($this->input('status') === Delivery::STATUS_DELIVERED),
             ],
         ];
     }
@@ -75,7 +75,7 @@ class StoreDeliveryRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'arrival_date.required_if' => 'The arrival date is required when the status is completed.',
+            'arrival_date.required_if' => 'The arrival date is required when the status is delivered.',
             'arrival_date.after' => 'The arrival date must be after the departure date.',
         ];
     }

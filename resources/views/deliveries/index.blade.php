@@ -7,10 +7,12 @@
                     {{ __('Delivery List') }}
                 </h2>
             </div>
-            <a href="{{ route('deliveries.create') }}" class="btn-primary">
-                <i data-lucide="plus" class="h-4 w-4"></i>
-                Create Delivery
-            </a>
+            @if(Auth::user()->isAdmin() || Auth::user()->isDispatcher())
+                <a href="{{ route('deliveries.create') }}" class="btn-primary">
+                    <i data-lucide="plus" class="h-4 w-4"></i>
+                    Create Delivery
+                </a>
+            @endif
         </div>
     </x-slot>
 
@@ -58,15 +60,15 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @php
                                         $statusClasses = [
-                                            'pending' => 'bg-amber-50 text-amber-700 border-amber-200',
-                                            'in_progress' => 'bg-blue-50 text-blue-700 border-blue-200',
-                                            'completed' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                            'assigned' => 'bg-amber-50 text-amber-700 border-amber-200',
+                                            'in_transit' => 'bg-blue-50 text-blue-700 border-blue-200',
+                                            'delivered' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
                                         ];
                                         $class = $statusClasses[$delivery->status] ?? 'bg-gray-50 text-gray-700 border-gray-200';
                                     @endphp
                                     <span class="status-badge {{ $class }}">
                                         <span class="w-1.5 h-1.5 rounded-full bg-current mr-1.5"></span>
-                                        {{ ucfirst(str_replace('_', ' ', $delivery->status)) }}
+                                        {{ $delivery->statusLabel() }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">

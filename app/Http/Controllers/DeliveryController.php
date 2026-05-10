@@ -69,7 +69,7 @@ class DeliveryController extends Controller implements HasMiddleware
      */
     public function show(Delivery $delivery): View
     {
-        if (Auth::user()->isDriver() && Auth::user()->driver->id !== $delivery->driver_id) {
+        if (Auth::user()->isDriver() && Auth::user()->driver?->id !== $delivery->driver_id) {
             abort(403);
         }
 
@@ -82,8 +82,16 @@ class DeliveryController extends Controller implements HasMiddleware
      */
     public function edit(Delivery $delivery): View
     {
-        if (Auth::user()->isDriver() && Auth::user()->driver->id !== $delivery->driver_id) {
+        if (Auth::user()->isDriver() && Auth::user()->driver?->id !== $delivery->driver_id) {
             abort(403);
+        }
+
+        if (Auth::user()->isDriver()) {
+            return view('deliveries.edit', [
+                'delivery' => $delivery,
+                'trucks' => collect(),
+                'drivers' => collect(),
+            ]);
         }
 
         // Show available trucks/drivers + the currently assigned ones
@@ -106,10 +114,13 @@ class DeliveryController extends Controller implements HasMiddleware
         $oldDriverId = $delivery->driver_id;
 
         if (Auth::user()->isDriver()) {
-            if (Auth::user()->driver->id !== $delivery->driver_id) {
+            if (Auth::user()->driver?->id !== $delivery->driver_id) {
                 abort(403);
             }
-            $delivery->update(['status' => $request->status]);
+            $delivery->update([
+                'status' => $request->status,
+                'arrival_date' => $request->status === Delivery::STATUS_DELIVERED ? now() : $delivery->arrival_date,
+            ]);
         } else {
             $delivery->update($request->validated());
         }
@@ -134,8 +145,8 @@ class DeliveryController extends Controller implements HasMiddleware
     public function destroy(Delivery $delivery): RedirectResponse
     {
         // Reset truck and driver to available before deleting
-        $delivery->truck->update(['status' => 'available']);
-        $delivery->driver->update(['status' => 'available']);
+        $delivery->truck?->update(['status' => 'available']);
+        $delivery->driver?->update(['status' => 'available']);
 
         $delivery->delete();
 
@@ -151,14 +162,14 @@ class DeliveryController extends Controller implements HasMiddleware
         $truck = $delivery->truck;
         $driver = $delivery->driver;
 
-        if ($delivery->status === 'in_progress') {
+        if ($delivery->status === Delivery::STATUS_IN_TRANSIT) {
             $truck->update(['status' => 'on_delivery']);
             $driver->update(['status' => 'busy']);
-        } elseif ($delivery->status === 'completed') {
+        } elseif ($delivery->status === Delivery::STATUS_DELIVERED) {
             $truck->update(['status' => 'available']);
             $driver->update(['status' => 'available']);
         } else {
-            // For 'pending', check if they should be available (unless busy with another)
+            // For assigned deliveries, keep the truck and driver visible as available until transit starts.
             // But validation prevents multiple active assignments, so we can safely reset.
             $truck->update(['status' => 'available']);
             $driver->update(['status' => 'available']);

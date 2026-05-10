@@ -12,7 +12,7 @@ class UpdateDriverRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->isAdmin() || $this->user()?->isDispatcher();
     }
 
     /**
@@ -32,6 +32,11 @@ class UpdateDriverRequest extends FormRequest
             ],
             'phone' => 'required|string|max:20',
             'status' => 'required|in:available,busy,inactive',
+            'user_id' => [
+                'nullable',
+                Rule::exists('users', 'id')->where('role', 'driver'),
+                Rule::unique('drivers', 'user_id')->ignore($driverId),
+            ],
         ];
     }
 }

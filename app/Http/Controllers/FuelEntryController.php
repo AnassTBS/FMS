@@ -15,8 +15,7 @@ class FuelEntryController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            // Only admin/dispatcher can delete or see all, drivers can add
-            new Middleware('role:admin|dispatcher|driver'),
+            new Middleware('role:admin|driver'),
         ];
     }
 
@@ -67,7 +66,7 @@ class FuelEntryController extends Controller implements HasMiddleware
      */
     public function destroy(FuelEntry $fuelEntry): RedirectResponse
     {
-        if (!auth()->user()->isAdmin() && !auth()->user()->isDispatcher()) {
+        if (!auth()->user()->isAdmin()) {
             abort(403);
         }
 

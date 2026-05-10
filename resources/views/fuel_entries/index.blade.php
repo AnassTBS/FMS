@@ -25,7 +25,7 @@
                             <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Liters</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Amount</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Mileage</th>
-                            @if(auth()->user()->isAdmin() || auth()->user()->isDispatcher())
+                            @if(auth()->user()->isAdmin())
                             <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
                             @endif
                         </tr>
@@ -53,7 +53,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                     {{ number_format($entry->mileage) }} km
                                 </td>
-                                @if(auth()->user()->isAdmin() || auth()->user()->isDispatcher())
+                                @if(auth()->user()->isAdmin())
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <form action="{{ route('fuel-entries.destroy', $entry) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure?')">
                                         @csrf

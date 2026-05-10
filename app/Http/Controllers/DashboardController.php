@@ -41,7 +41,7 @@ class DashboardController extends Controller
     private function getAdminStats(): array
     {
         $totalDeliveries = Delivery::count();
-        $completedDeliveries = Delivery::where('status', 'completed')->count();
+        $completedDeliveries = Delivery::where('status', Delivery::STATUS_DELIVERED)->count();
         
         $recentLogs = collect();
         if (Schema::hasTable('activity_logs')) {
@@ -53,9 +53,9 @@ class DashboardController extends Controller
         }
 
         return [
-            'stats' => [
+                'stats' => [
                 'total_deliveries' => $totalDeliveries,
-                'active_deliveries' => Delivery::where('status', 'in_progress')->count(),
+                'active_deliveries' => Delivery::whereIn('status', [Delivery::STATUS_ASSIGNED, Delivery::STATUS_IN_TRANSIT])->count(),
                 'completed_deliveries' => $completedDeliveries,
                 'available_trucks' => Truck::where('status', 'available')->count(),
                 'trucks_on_delivery' => Truck::where('status', 'on_delivery')->count(),
@@ -67,9 +67,9 @@ class DashboardController extends Controller
             'recent_logs' => $recentLogs,
             'chart_data' => [
                 'delivery_status' => [
-                    'pending' => Delivery::where('status', 'pending')->count(),
-                    'in_progress' => Delivery::where('status', 'in_progress')->count(),
-                    'completed' => Delivery::where('status', 'completed')->count(),
+                    Delivery::STATUS_ASSIGNED => Delivery::where('status', Delivery::STATUS_ASSIGNED)->count(),
+                    Delivery::STATUS_IN_TRANSIT => Delivery::where('status', Delivery::STATUS_IN_TRANSIT)->count(),
+                    Delivery::STATUS_DELIVERED => Delivery::where('status', Delivery::STATUS_DELIVERED)->count(),
                 ],
                 'truck_utilization' => [
                     'available' => Truck::where('status', 'available')->count(),
@@ -88,10 +88,16 @@ class DashboardController extends Controller
     private function getDriverStats($user): array
     {
         $driverProfile = $user->driver;
+        $deliveries = $driverProfile
+            ? $driverProfile->deliveries()->with(['truck', 'driver'])->latest()
+            : null;
+
         return [
-            'my_deliveries_count' => $driverProfile ? $driverProfile->deliveries()->count() : 0,
-            'active_deliveries' => $driverProfile ? $driverProfile->deliveries()->where('status', 'in_progress')->get() : collect(),
-            'completed_deliveries_count' => $driverProfile ? $driverProfile->deliveries()->where('status', 'completed')->count() : 0,
+            'driver_profile' => $driverProfile,
+            'my_deliveries_count' => $driverProfile ? (clone $deliveries)->count() : 0,
+            'assigned_deliveries_count' => $driverProfile ? (clone $deliveries)->where('status', Delivery::STATUS_ASSIGNED)->count() : 0,
+            'active_deliveries' => $driverProfile ? (clone $deliveries)->whereIn('status', [Delivery::STATUS_ASSIGNED, Delivery::STATUS_IN_TRANSIT])->take(5)->get() : collect(),
+            'completed_deliveries_count' => $driverProfile ? (clone $deliveries)->where('status', Delivery::STATUS_DELIVERED)->count() : 0,
         ];
     }
 }

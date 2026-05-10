@@ -8,9 +8,11 @@
                 </h2>
             </div>
             <div class="flex gap-2">
-                <a href="{{ route('deliveries.edit', $delivery) }}" class="btn-secondary">
-                    Edit
-                </a>
+                @if(Auth::user()->isAdmin() || Auth::user()->isDispatcher() || (Auth::user()->isDriver() && Auth::user()->driver?->id === $delivery->driver_id))
+                    <a href="{{ route('deliveries.edit', $delivery) }}" class="btn-secondary">
+                        Edit
+                    </a>
+                @endif
                 <a href="{{ route('deliveries.index') }}" class="btn-secondary">
                     Back to List
                 </a>
@@ -29,13 +31,13 @@
                     <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Status</p>
                     @php
                         $statusClasses = [
-                            'pending' => 'text-amber-600',
-                            'in_progress' => 'text-blue-600',
-                            'completed' => 'text-emerald-600',
+                            'assigned' => 'text-amber-600',
+                            'in_transit' => 'text-blue-600',
+                            'delivered' => 'text-emerald-600',
                         ];
                         $class = $statusClasses[$delivery->status] ?? 'text-gray-600';
                     @endphp
-                    <p class="text-lg font-bold {{ $class }}">{{ ucfirst(str_replace('_', ' ', $delivery->status)) }}</p>
+                    <p class="text-lg font-bold {{ $class }}">{{ $delivery->statusLabel() }}</p>
                 </div>
             </div>
 

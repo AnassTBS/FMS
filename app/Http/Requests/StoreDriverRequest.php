@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreDriverRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class StoreDriverRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->isAdmin() || $this->user()?->isDispatcher();
     }
 
     /**
@@ -24,6 +25,11 @@ class StoreDriverRequest extends FormRequest
             'license_number' => 'required|string|unique:drivers,license_number|max:255',
             'phone' => 'required|string|max:20',
             'status' => 'required|in:available,busy,inactive',
+            'user_id' => [
+                'nullable',
+                Rule::exists('users', 'id')->where('role', 'driver'),
+                Rule::unique('drivers', 'user_id'),
+            ],
         ];
     }
 }

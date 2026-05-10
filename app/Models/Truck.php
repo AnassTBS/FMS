@@ -19,4 +19,20 @@ class Truck extends Model
     {
         return $this->hasMany(Delivery::class);
     }
+
+    /**
+     * Get the fuel entries for the truck.
+     */
+    public function fuelEntries(): HasMany
+    {
+        return $this->hasMany(FuelEntry::class);
+    }
+
+    /**
+     * Get the maintenance records for the truck.
+     */
+    public function maintenances(): HasMany
+    {
+        return $this->hasMany(Maintenance::class);
+    }
 }

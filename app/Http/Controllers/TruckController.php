@@ -16,7 +16,7 @@ class TruckController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('role:admin|dispatcher', except: ['index', 'show']),
+            new Middleware('role:admin|dispatcher'),
         ];
     }
     /**

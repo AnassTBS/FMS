@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('registration_number')->unique();
             $table->string('model');
             $table->integer('capacity');
-            $table->enum('status', ['available', 'in_use', 'maintenance'])->default('available');
+            $table->enum('status', ['available', 'on_delivery', 'maintenance'])->default('available');
             $table->timestamps();
         });
     }

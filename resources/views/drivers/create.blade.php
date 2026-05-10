@@ -41,6 +41,19 @@
                             <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
                         </select>
                     </div>
+
+                    <!-- Driver Account -->
+                    <div>
+                        <label for="user_id" class="block text-sm font-medium text-gray-700">Driver Account</label>
+                        <select name="user_id" id="user_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <option value="">No account linked</option>
+                            @foreach($driverUsers as $user)
+                                <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
+                                    {{ $user->name }} ({{ $user->email }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
 
                 <div class="mt-8 flex justify-end space-x-3 border-t border-slate-100 pt-6">

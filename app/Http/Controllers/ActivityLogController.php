@@ -13,7 +13,7 @@ class ActivityLogController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('role:admin|dispatcher'),
+            new Middleware('role:admin'),
         ];
     }
 
@@ -35,11 +35,6 @@ class ActivityLogController extends Controller implements HasMiddleware
 
         if ($request->filled('date')) {
             $query->whereDate('created_at', $request->date);
-        }
-
-        // Dispatchers can only see operational logs (excluding user management)
-        if (auth()->user()->isDispatcher()) {
-            $query->whereNotIn('action', ['user_created', 'user_updated', 'user_deleted', 'user_role_changed']);
         }
 
         $logs = $query->paginate(20);

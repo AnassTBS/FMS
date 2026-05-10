@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('driver_id')->constrained()->cascadeOnDelete();
             $table->string('origin');
             $table->string('destination');
-            $table->enum('status', ['pending', 'in_progress', 'completed'])->default('pending');
+            $table->enum('status', ['assigned', 'in_transit', 'delivered'])->default('assigned');
             $table->dateTime('departure_date');
             $table->dateTime('arrival_date')->nullable();
             $table->timestamps();

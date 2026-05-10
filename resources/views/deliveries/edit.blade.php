@@ -13,7 +13,18 @@
             <form action="{{ route('deliveries.update', $delivery) }}" method="POST">
                 @csrf
                 @method('PUT')
-                
+
+                @if(Auth::user()->isDriver())
+                <div class="max-w-md">
+                    <label for="status" class="block text-sm font-medium text-gray-700">Delivery Status</label>
+                    <select name="status" id="status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                        @foreach(\App\Models\Delivery::statusLabels() as $value => $label)
+                            <option value="{{ $value }}" {{ old('status', $delivery->status) == $value ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    <p class="mt-2 text-xs font-semibold text-slate-500">You can only update the status for deliveries assigned to you.</p>
+                </div>
+                @else
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Truck Selection -->
                     <div>
@@ -55,9 +66,9 @@
                     <div>
                         <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
                         <select name="status" id="status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
-                            <option value="pending" {{ old('status', $delivery->status) == 'pending' ? 'selected' : '' }}>Pending</option>
-                            <option value="in_progress" {{ old('status', $delivery->status) == 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                            <option value="completed" {{ old('status', $delivery->status) == 'completed' ? 'selected' : '' }}>Completed</option>
+                            @foreach(\App\Models\Delivery::statusLabels() as $value => $label)
+                                <option value="{{ $value }}" {{ old('status', $delivery->status) == $value ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -69,10 +80,11 @@
 
                     <!-- Arrival Date -->
                     <div>
-                        <label for="arrival_date" class="block text-sm font-medium text-gray-700">Arrival Date & Time (Required if Completed)</label>
+                        <label for="arrival_date" class="block text-sm font-medium text-gray-700">Arrival Date & Time (Required if Delivered)</label>
                         <input type="datetime-local" name="arrival_date" id="arrival_date" value="{{ old('arrival_date', $delivery->arrival_date ? $delivery->arrival_date->format('Y-m-d\TH:i') : '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                     </div>
                 </div>
+                @endif
 
                 <div class="mt-8 flex justify-end space-x-3 border-t border-slate-100 pt-6">
                     <a href="{{ route('deliveries.index') }}" class="btn-secondary">

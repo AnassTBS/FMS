@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Driver;
+use App\Models\User;
 use App\Http\Requests\StoreDriverRequest;
 use App\Http\Requests\UpdateDriverRequest;
 use Illuminate\Http\RedirectResponse;
@@ -16,7 +17,7 @@ class DriverController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('role:admin|dispatcher', except: ['index', 'show']),
+            new Middleware('role:admin|dispatcher'),
         ];
     }
     /**
@@ -33,7 +34,12 @@ class DriverController extends Controller implements HasMiddleware
      */
     public function create(): View
     {
-        return view('drivers.create');
+        $driverUsers = User::where('role', 'driver')
+            ->whereDoesntHave('driver')
+            ->orderBy('name')
+            ->get();
+
+        return view('drivers.create', compact('driverUsers'));
     }
 
     /**
@@ -61,7 +67,15 @@ class DriverController extends Controller implements HasMiddleware
      */
     public function edit(Driver $driver): View
     {
-        return view('drivers.edit', compact('driver'));
+        $driverUsers = User::where('role', 'driver')
+            ->where(function ($query) use ($driver) {
+                $query->whereDoesntHave('driver')
+                    ->orWhere('id', $driver->user_id);
+            })
+            ->orderBy('name')
+            ->get();
+
+        return view('drivers.edit', compact('driver', 'driverUsers'));
     }
 
     /**

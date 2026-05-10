@@ -56,9 +56,9 @@
                     <div>
                         <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
                         <select name="status" id="status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
-                            <option value="pending" {{ old('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                            <option value="in_progress" {{ old('status') == 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                            <option value="completed" {{ old('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                            @foreach(\App\Models\Delivery::statusLabels() as $value => $label)
+                                <option value="{{ $value }}" {{ old('status', \App\Models\Delivery::STATUS_ASSIGNED) == $value ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -70,7 +70,7 @@
 
                     <!-- Arrival Date -->
                     <div>
-                        <label for="arrival_date" class="block text-sm font-medium text-gray-700">Arrival Date & Time (Required if Completed)</label>
+                        <label for="arrival_date" class="block text-sm font-medium text-gray-700">Arrival Date & Time (Required if Delivered)</label>
                         <input type="datetime-local" name="arrival_date" id="arrival_date" value="{{ old('arrival_date') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                     </div>
                 </div>

@@ -29,9 +29,11 @@
                 $primaryLinks[] = ['label' => 'Trucks', 'route' => route('trucks.index'), 'active' => request()->routeIs('trucks.*'), 'icon' => 'truck'];
             }
 
-            $primaryLinks[] = ['label' => 'Fuel', 'route' => route('fuel-entries.index'), 'active' => request()->routeIs('fuel-entries.*'), 'icon' => 'fuel'];
+            if (auth()->user()->isAdmin() || auth()->user()->isDriver()) {
+                $primaryLinks[] = ['label' => 'Fuel', 'route' => route('fuel-entries.index'), 'active' => request()->routeIs('fuel-entries.*'), 'icon' => 'fuel'];
+            }
 
-            if (auth()->user()->isAdmin() || auth()->user()->isDispatcher()) {
+            if (auth()->user()->isAdmin()) {
                 $primaryLinks[] = ['label' => 'Maintenance', 'route' => route('maintenances.index'), 'active' => request()->routeIs('maintenances.*'), 'icon' => 'wrench'];
                 $primaryLinks[] = ['label' => 'Activity Logs', 'route' => route('activity-logs.index'), 'active' => request()->routeIs('activity-logs.*'), 'icon' => 'history'];
             }

@@ -12,7 +12,7 @@ class UpdateTruckRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->isAdmin() || $this->user()?->isDispatcher();
     }
 
     /**
@@ -31,7 +31,7 @@ class UpdateTruckRequest extends FormRequest
             ],
             'model' => 'required|string|max:255',
             'capacity' => 'required|integer|min:1',
-            'status' => 'required|in:available,in_use,maintenance',
+            'status' => 'required|in:available,on_delivery,maintenance',
         ];
     }
 }

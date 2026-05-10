@@ -15,7 +15,7 @@ class MaintenanceController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('role:admin|dispatcher'),
+            new Middleware('role:admin'),
         ];
     }
 
@@ -41,6 +41,9 @@ class MaintenanceController extends Controller implements HasMiddleware
 
         Maintenance::create($validated);
 
+        // Set the truck to maintenance status when a maintenance record is created
+        Truck::find($validated['truck_id'])?->update(['status' => 'maintenance']);
+
         return redirect()->route('maintenances.index')
             ->with('success', 'Maintenance scheduled successfully.');
     }
@@ -51,9 +54,11 @@ class MaintenanceController extends Controller implements HasMiddleware
             'is_completed' => $request->has('is_completed')
         ]);
 
+        $maintenance->refresh();
+
         if ($maintenance->is_completed) {
             // When maintenance is done, ensure the truck is available if it was in maintenance status
-            if ($maintenance->truck->status === 'maintenance') {
+            if ($maintenance->truck?->status === 'maintenance') {
                 $maintenance->truck->update(['status' => 'available']);
             }
         }
@@ -63,7 +68,14 @@ class MaintenanceController extends Controller implements HasMiddleware
 
     public function destroy(Maintenance $maintenance): RedirectResponse
     {
+        // If the maintenance was not completed, the truck is still blocked.
+        // Restore it to available before removing the record.
+        if (! $maintenance->is_completed) {
+            $maintenance->truck?->update(['status' => 'available']);
+        }
+
         $maintenance->delete();
+
         return redirect()->route('maintenances.index')
             ->with('success', 'Maintenance record removed.');
     }

@@ -23,7 +23,7 @@
                 </div>
                 <div class="inline-flex w-fit items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1.5 text-xs font-extrabold uppercase tracking-widest text-indigo-700">
                     <span class="h-2 w-2 rounded-full bg-indigo-500"></span>
-                    {{ Auth::user()->driver->status ?? 'Available' }}
+                    {{ $driver_profile?->status ?? 'No driver profile linked' }}
                 </div>
             </div>
         </section>
@@ -59,8 +59,8 @@
                         <i data-lucide="activity" class="h-6 w-6"></i>
                     </span>
                     <div>
-                        <p class="text-xs font-extrabold uppercase tracking-widest text-blue-700">Active now</p>
-                        <p class="mt-1 text-3xl font-extrabold tracking-tight text-blue-950">{{ $active_deliveries->count() }}</p>
+                        <p class="text-xs font-extrabold uppercase tracking-widest text-blue-700">Assigned</p>
+                        <p class="mt-1 text-3xl font-extrabold tracking-tight text-blue-950">{{ $assigned_deliveries_count }}</p>
                     </div>
                 </div>
             </div>
@@ -89,6 +89,7 @@
                                         <p class="text-sm font-bold text-slate-950">{{ $delivery->destination }}</p>
                                     </div>
                                     <p class="mt-1 text-xs font-bold text-slate-500">Scheduled {{ $delivery->departure_date->format('M d, H:i') }}</p>
+                                    <p class="mt-1 text-xs font-bold text-indigo-600">{{ $delivery->statusLabel() }}</p>
                                 </div>
                             </div>
                             <a href="{{ route('deliveries.show', $delivery) }}" class="btn-secondary">
