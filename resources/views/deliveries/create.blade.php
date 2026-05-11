@@ -73,6 +73,12 @@
                         <label for="arrival_date" class="block text-sm font-medium text-gray-700">Arrival Date & Time (Required if Delivered)</label>
                         <input type="datetime-local" name="arrival_date" id="arrival_date" value="{{ old('arrival_date') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                     </div>
+
+                    <!-- Distance -->
+                    <div>
+                        <label for="distance_km" class="block text-sm font-medium text-gray-700">Route Distance (km)</label>
+                        <input type="number" step="0.1" name="distance_km" id="distance_km" value="{{ old('distance_km') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                    </div>
                 </div>
 
                 <div class="mt-8 flex justify-end space-x-3 border-t border-slate-100 pt-6">

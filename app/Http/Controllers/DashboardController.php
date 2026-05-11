@@ -31,10 +31,6 @@ class DashboardController extends Controller
             return view('dashboard.admin', $stats);
         }
 
-        if ($user->isDispatcher()) {
-            return view('dashboard.dispatcher', $stats);
-        }
-
         abort(403);
     }
 
@@ -45,11 +41,7 @@ class DashboardController extends Controller
         
         $recentLogs = collect();
         if (Schema::hasTable('activity_logs')) {
-            $logsQuery = ActivityLog::with('user')->latest();
-            if (auth()->user()->isDispatcher()) {
-                $logsQuery->whereNotIn('action', ['user_created', 'user_updated', 'user_deleted', 'user_role_changed']);
-            }
-            $recentLogs = $logsQuery->take(5)->get();
+            $recentLogs = ActivityLog::with('user')->latest()->take(5)->get();
         }
 
         return [
@@ -58,9 +50,9 @@ class DashboardController extends Controller
                 'active_deliveries' => Delivery::whereIn('status', [Delivery::STATUS_ASSIGNED, Delivery::STATUS_IN_TRANSIT])->count(),
                 'completed_deliveries' => $completedDeliveries,
                 'available_trucks' => Truck::where('status', 'available')->count(),
-                'trucks_on_delivery' => Truck::where('status', 'on_delivery')->count(),
+                'trucks_on_delivery' => Truck::whereIn('status', ['on_delivery', 'busy', 'reserved'])->count(),
                 'available_drivers' => Driver::where('status', 'available')->count(),
-                'busy_drivers' => Driver::where('status', 'busy')->count(),
+                'busy_drivers' => Driver::whereIn('status', ['busy', 'reserved'])->count(),
                 'completion_rate' => $totalDeliveries > 0 ? round(($completedDeliveries / $totalDeliveries) * 100) : 0,
             ],
             'recent_deliveries' => Delivery::with(['truck', 'driver'])->latest()->take(5)->get(),
@@ -73,12 +65,12 @@ class DashboardController extends Controller
                 ],
                 'truck_utilization' => [
                     'available' => Truck::where('status', 'available')->count(),
-                    'on_delivery' => Truck::where('status', 'on_delivery')->count(),
+                    'on_delivery' => Truck::whereIn('status', ['on_delivery', 'busy', 'reserved'])->count(),
                     'maintenance' => Truck::where('status', 'maintenance')->count(),
                 ],
                 'driver_availability' => [
                     'available' => Driver::where('status', 'available')->count(),
-                    'busy' => Driver::where('status', 'busy')->count(),
+                    'busy' => Driver::whereIn('status', ['busy', 'reserved'])->count(),
                     'inactive' => Driver::where('status', 'inactive')->count(),
                 ],
             ]

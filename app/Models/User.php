@@ -43,14 +43,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user is a dispatcher.
-     */
-    public function isDispatcher(): bool
-    {
-        return $this->role === 'dispatcher';
-    }
-
-    /**
      * Check if user is a driver.
      */
     public function isDriver(): bool

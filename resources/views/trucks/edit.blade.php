@@ -17,28 +17,35 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Registration Number -->
                     <div>
-                        <label for="registration_number" class="block text-sm font-medium text-gray-700">Registration Number</label>
-                        <input type="text" name="registration_number" id="registration_number" value="{{ old('registration_number', $truck->registration_number) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                        <label for="registration_number" class="block text-sm font-bold text-slate-700">Registration Number</label>
+                        <input type="text" name="registration_number" id="registration_number" value="{{ old('registration_number', $truck->registration_number) }}" class="mt-1 block w-full rounded-xl border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
                     </div>
 
                     <!-- Model -->
                     <div>
-                        <label for="model" class="block text-sm font-medium text-gray-700">Truck Model</label>
-                        <input type="text" name="model" id="model" value="{{ old('model', $truck->model) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                        <label for="model" class="block text-sm font-bold text-slate-700">Truck Model</label>
+                        <input type="text" name="model" id="model" value="{{ old('model', $truck->model) }}" class="mt-1 block w-full rounded-xl border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
                     </div>
 
                     <!-- Capacity -->
                     <div>
-                        <label for="capacity" class="block text-sm font-medium text-gray-700">Capacity (kg)</label>
-                        <input type="number" name="capacity" id="capacity" value="{{ old('capacity', $truck->capacity) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                        <label for="capacity" class="block text-sm font-bold text-slate-700">Capacity (kg)</label>
+                        <input type="number" name="capacity" id="capacity" value="{{ old('capacity', $truck->capacity) }}" class="mt-1 block w-full rounded-xl border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                    </div>
+
+                    <!-- Average Consumption -->
+                    <div>
+                        <label for="average_consumption" class="block text-sm font-bold text-slate-700">Expected Consumption (L/100km)</label>
+                        <input type="number" step="0.01" name="average_consumption" id="average_consumption" value="{{ old('average_consumption', $truck->average_consumption) }}" class="mt-1 block w-full rounded-xl border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
                     </div>
 
                     <!-- Status -->
                     <div>
-                        <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-                        <select name="status" id="status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                        <label for="status" class="block text-sm font-bold text-slate-700">Status</label>
+                        <select name="status" id="status" class="mt-1 block w-full rounded-xl border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
                             <option value="available" {{ old('status', $truck->status) == 'available' ? 'selected' : '' }}>Available</option>
-                            <option value="in_use" {{ old('status', $truck->status) == 'in_use' ? 'selected' : '' }}>In Use</option>
+                            <option value="on_delivery" {{ old('status', $truck->status) == 'on_delivery' ? 'selected' : '' }}>On Delivery</option>
+                            <option value="reserved" {{ old('status', $truck->status) == 'reserved' ? 'selected' : '' }}>Reserved</option>
                             <option value="maintenance" {{ old('status', $truck->status) == 'maintenance' ? 'selected' : '' }}>Maintenance</option>
                         </select>
                     </div>

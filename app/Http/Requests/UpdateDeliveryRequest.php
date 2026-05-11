@@ -13,7 +13,7 @@ class UpdateDeliveryRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        if ($this->user()?->isAdmin() || $this->user()?->isDispatcher()) {
+        if ($this->user()?->isAdmin()) {
             return true;
         }
 
@@ -71,6 +71,9 @@ class UpdateDeliveryRequest extends FormRequest
             'destination' => 'required|string|max:255|different:origin',
             'departure_date' => 'required|date',
             'arrival_date' => 'nullable|date|after:departure_date',
+            'distance_km' => 'required|numeric|min:0.1',
+            'actual_fuel' => 'nullable|numeric|min:0',
+            'fuel_cost' => 'nullable|numeric|min:0',
         ];
     }
 

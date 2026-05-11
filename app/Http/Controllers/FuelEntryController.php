@@ -9,6 +9,7 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Auth;
 
 class FuelEntryController extends Controller implements HasMiddleware
 {
@@ -24,13 +25,25 @@ class FuelEntryController extends Controller implements HasMiddleware
      */
     public function index(): View
     {
-        $query = FuelEntry::with('truck')->latest();
+        $query = FuelEntry::with(['truck', 'user'])->latest();
 
-        // If driver, maybe they only see their truck's fuel? 
-        // For now, let's keep it simple or filter by truck if needed.
+        if (Auth::user()->isDriver()) {
+            // Drivers can see all logs or maybe just their own? 
+            // The prompt says "Fuel tracking and monitoring module", usually implies visibility for management.
+            // But let's keep the query as is for now or filter if needed.
+        }
 
         $fuelEntries = $query->paginate(15);
-        return view('fuel_entries.index', compact('fuelEntries'));
+
+        // Calculate dashboard stats
+        $stats = [
+            'total_fuel' => FuelEntry::sum('liters'),
+            'total_cost' => FuelEntry::sum('amount'),
+            'avg_price' => FuelEntry::count() > 0 ? FuelEntry::sum('amount') / FuelEntry::sum('liters') : 0,
+            'avg_consumption' => FuelEntry::whereNotNull('real_consumption')->avg('real_consumption') ?? 0,
+        ];
+
+        return view('fuel_entries.index', compact('fuelEntries', 'stats'));
     }
 
     /**
@@ -40,10 +53,9 @@ class FuelEntryController extends Controller implements HasMiddleware
     {
         $trucks = Truck::orderBy('registration_number')->get();
         
-        // If the user is a driver, try to find their current truck
         $defaultTruckId = null;
-        if (auth()->user()->isDriver() && auth()->user()->driver) {
-            $defaultTruckId = auth()->user()->driver->deliveries()
+        if (Auth::user()->isDriver() && Auth::user()->driver) {
+            $defaultTruckId = Auth::user()->driver->deliveries()
                 ->whereIn('status', [\App\Models\Delivery::STATUS_ASSIGNED, \App\Models\Delivery::STATUS_IN_TRANSIT])
                 ->latest()
                 ->first()?->truck_id;
@@ -63,12 +75,15 @@ class FuelEntryController extends Controller implements HasMiddleware
             'liters' => 'required|numeric|min:0.1',
             'amount' => 'required|numeric|min:0.1',
             'mileage' => 'required|numeric|min:0',
+            'fuel_station' => 'nullable|string|max:255',
+            'notes' => 'nullable|string',
         ]);
 
-        // Logic fix: Ensure mileage is not decreasing
+        $truck = Truck::findOrFail($validated['truck_id']);
+
+        // 1. Safety Rule: Prevent mileage rollback
         $lastEntry = FuelEntry::where('truck_id', $validated['truck_id'])
-            ->orderBy('date', 'desc')
-            ->orderBy('id', 'desc')
+            ->orderBy('mileage', 'desc')
             ->first();
 
         if ($lastEntry && $validated['mileage'] < $lastEntry->mileage) {
@@ -77,10 +92,40 @@ class FuelEntryController extends Controller implements HasMiddleware
             ]);
         }
 
-        FuelEntry::create($validated);
+        // 2. Automatic Calculations
+        $distanceTraveled = null;
+        $realConsumption = null;
+        $status = 'normal';
+
+        if ($lastEntry) {
+            $distanceTraveled = $validated['mileage'] - $lastEntry->mileage;
+            
+            if ($distanceTraveled > 0) {
+                $realConsumption = ($validated['liters'] / $distanceTraveled) * 100;
+                
+                // 3. Abnormal Consumption Detection
+                $difference = $realConsumption - $truck->average_consumption;
+                
+                if ($difference > 15) {
+                    $status = 'critical';
+                } elseif ($difference > 5) {
+                    $status = 'warning';
+                } else {
+                    $status = 'normal';
+                }
+            }
+        }
+
+        // 4. Create Entry
+        FuelEntry::create(array_merge($validated, [
+            'user_id' => Auth::id(),
+            'distance_traveled' => $distanceTraveled,
+            'real_consumption' => $realConsumption,
+            'status' => $status,
+        ]));
 
         return redirect()->route('fuel-entries.index')
-            ->with('success', 'Fuel entry recorded successfully.');
+            ->with('success', 'Fuel entry recorded and consumption analyzed.');
     }
 
     /**
@@ -88,7 +133,7 @@ class FuelEntryController extends Controller implements HasMiddleware
      */
     public function destroy(FuelEntry $fuelEntry): RedirectResponse
     {
-        if (!auth()->user()->isAdmin()) {
+        if (!Auth::user()->isAdmin()) {
             abort(403);
         }
 

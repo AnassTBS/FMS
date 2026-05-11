@@ -23,7 +23,7 @@
         if (auth()->check()) {
             $primaryLinks[] = ['label' => 'Dashboard', 'route' => route('dashboard'), 'active' => request()->routeIs('dashboard'), 'icon' => 'layout-dashboard'];
 
-            if (auth()->user()->isAdmin() || auth()->user()->isDispatcher()) {
+            if (auth()->user()->isAdmin()) {
                 $primaryLinks[] = ['label' => 'Deliveries', 'route' => route('deliveries.index'), 'active' => request()->routeIs('deliveries.*'), 'icon' => 'package'];
                 $primaryLinks[] = ['label' => 'Drivers', 'route' => route('drivers.index'), 'active' => request()->routeIs('drivers.*'), 'icon' => 'users'];
                 $primaryLinks[] = ['label' => 'Trucks', 'route' => route('trucks.index'), 'active' => request()->routeIs('trucks.*'), 'icon' => 'truck'];

@@ -7,7 +7,7 @@
                     {{ __('Delivery List') }}
                 </h2>
             </div>
-            @if(Auth::user()->isAdmin() || Auth::user()->isDispatcher())
+            @if(Auth::user()->isAdmin())
                 <a href="{{ route('deliveries.create') }}" class="btn-primary">
                     <i data-lucide="plus" class="h-4 w-4"></i>
                     Create Delivery
@@ -66,10 +66,26 @@
                                         ];
                                         $class = $statusClasses[$delivery->status] ?? 'bg-gray-50 text-gray-700 border-gray-200';
                                     @endphp
-                                    <span class="status-badge {{ $class }}">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-current mr-1.5"></span>
-                                        {{ $delivery->statusLabel() }}
-                                    </span>
+                                    <div class="flex flex-col gap-1.5">
+                                        <span class="status-badge {{ $class }}">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-current mr-1.5"></span>
+                                            {{ $delivery->statusLabel() }}
+                                        </span>
+                                        @if($delivery->fuel_status)
+                                            @php
+                                                $fuelColors = [
+                                                    'normal' => 'text-emerald-500 bg-emerald-50 border-emerald-100',
+                                                    'warning' => 'text-amber-500 bg-amber-50 border-amber-100',
+                                                    'critical' => 'text-red-500 bg-red-50 border-red-100',
+                                                ];
+                                                $fuelColor = $fuelColors[$delivery->fuel_status] ?? 'text-gray-400 bg-gray-50 border-gray-100';
+                                            @endphp
+                                            <span class="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded border {{ $fuelColor }}">
+                                                <i data-lucide="fuel" class="w-2.5 h-2.5"></i>
+                                                {{ $delivery->fuel_status }}
+                                            </span>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                     <div class="flex flex-col gap-1">
@@ -100,7 +116,7 @@
                                         <a href="{{ route('deliveries.show', $delivery) }}" class="action-icon" title="View Details">
                                             <i data-lucide="eye" class="w-5 h-5"></i>
                                         </a>
-                                        @if(Auth::user()->isAdmin() || Auth::user()->isDispatcher())
+                                        @if(Auth::user()->isAdmin())
                                         <a href="{{ route('deliveries.edit', $delivery) }}" class="action-icon hover:!text-amber-600" title="Edit">
                                             <i data-lucide="edit-3" class="w-5 h-5"></i>
                                         </a>

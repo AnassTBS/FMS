@@ -10,7 +10,13 @@ class Truck extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['registration_number', 'model', 'capacity', 'status'];
+    protected $fillable = [
+        'registration_number', 
+        'model', 
+        'capacity', 
+        'average_consumption', 
+        'status'
+    ];
 
     /**
      * Get the deliveries for the truck.

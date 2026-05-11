@@ -104,7 +104,7 @@
                             <i data-lucide="circle-off" class="h-7 w-7"></i>
                         </div>
                         <p class="text-sm font-extrabold text-slate-700">No active deliveries assigned yet.</p>
-                        <p class="mt-1 text-xs font-bold text-slate-500">New assignments will appear here when dispatch updates your route.</p>
+                        <p class="mt-1 text-xs font-bold text-slate-500">New assignments will appear here when management updates your route.</p>
                     </div>
                     @endforelse
                 </div>

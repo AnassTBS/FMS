@@ -35,7 +35,7 @@
                             <select name="role" id="role" required
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                 <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                                <option value="dispatcher" {{ old('role') == 'dispatcher' ? 'selected' : '' }}>Dispatcher</option>
+
                                 <option value="driver" {{ old('role') == 'driver' ? 'selected' : '' }}>Driver</option>
                             </select>
                         </div>

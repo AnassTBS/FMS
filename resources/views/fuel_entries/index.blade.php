@@ -2,9 +2,9 @@
     <x-slot name="header">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <p class="text-xs font-extrabold uppercase tracking-widest text-indigo-600">Cost tracking</p>
+                <p class="text-xs font-extrabold uppercase tracking-widest text-indigo-600">Fuel monitoring system</p>
                 <h2 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-950">
-                    {{ __('Fuel Consumption Logs') }}
+                    {{ __('Fuel tracking and monitoring') }}
                 </h2>
             </div>
             <a href="{{ route('fuel-entries.create') }}" class="btn-primary">
@@ -14,14 +14,14 @@
         </div>
     </x-slot>
     
-    <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="surface p-4 flex items-center gap-4">
             <div class="rounded-xl bg-amber-50 p-3 text-amber-600">
                 <i data-lucide="droplet" class="w-6 h-6"></i>
             </div>
             <div>
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Fuel</p>
-                <p class="text-xl font-extrabold text-slate-900">{{ number_format($fuelEntries->sum('liters'), 1) }} L</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Fuel Used</p>
+                <p class="text-xl font-extrabold text-slate-900">{{ number_format($stats['total_fuel'], 1) }} L</p>
             </div>
         </div>
         <div class="surface p-4 flex items-center gap-4">
@@ -29,8 +29,8 @@
                 <i data-lucide="dollar-sign" class="w-6 h-6"></i>
             </div>
             <div>
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Cost</p>
-                <p class="text-xl font-extrabold text-slate-900">${{ number_format($fuelEntries->sum('amount'), 2) }}</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Fuel Cost</p>
+                <p class="text-xl font-extrabold text-slate-900">${{ number_format($stats['total_cost'], 2) }}</p>
             </div>
         </div>
         <div class="surface p-4 flex items-center gap-4">
@@ -39,13 +39,16 @@
             </div>
             <div>
                 <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Avg Price/L</p>
-                <p class="text-xl font-extrabold text-slate-900">
-                    @if($fuelEntries->sum('liters') > 0)
-                        ${{ number_format($fuelEntries->sum('amount') / $fuelEntries->sum('liters'), 2) }}
-                    @else
-                        $0.00
-                    @endif
-                </p>
+                <p class="text-xl font-extrabold text-slate-900">${{ number_format($stats['avg_price'], 2) }}</p>
+            </div>
+        </div>
+        <div class="surface p-4 flex items-center gap-4">
+            <div class="rounded-xl bg-blue-50 p-3 text-blue-600">
+                <i data-lucide="gauge" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Avg Consumption</p>
+                <p class="text-xl font-extrabold text-slate-900">{{ number_format($stats['avg_consumption'], 1) }} <span class="text-xs font-bold text-slate-500">L/100km</span></p>
             </div>
         </div>
     </div>
@@ -56,11 +59,12 @@
                 <table class="min-w-full divide-y divide-slate-100">
                     <thead>
                         <tr>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Truck</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Truck & Station</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Date</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Liters</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Amount</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Fuel Details</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Mileage</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Consumption</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
                             @if(auth()->user()->isAdmin())
                             <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
                             @endif
@@ -71,23 +75,57 @@
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center gap-2">
-                                        <div class="rounded-lg bg-amber-50 p-1.5 text-amber-600">
-                                            <i data-lucide="fuel" class="w-4 h-4"></i>
+                                        <div class="rounded-lg bg-slate-50 p-1.5 text-slate-600">
+                                            <i data-lucide="truck" class="w-4 h-4"></i>
                                         </div>
-                                        <span class="text-sm font-bold text-gray-900">{{ $entry->truck->registration_number }}</span>
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-bold text-gray-900">{{ $entry->truck->registration_number }}</span>
+                                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{{ $entry->fuel_station ?? 'Private Station' }}</span>
+                                        </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
                                     {{ $entry->date->format('M d, Y') }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                                    {{ number_format($entry->liters, 2) }} L
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-bold text-gray-900">{{ number_format($entry->liters, 2) }} L</span>
+                                        <span class="text-xs font-bold text-emerald-600">${{ number_format($entry->amount, 2) }}</span>
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-emerald-600 font-bold">
-                                    ${{ number_format($entry->amount, 2) }}
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-bold text-gray-900">{{ number_format($entry->mileage) }} <span class="text-xs text-slate-400">km</span></span>
+                                        @if($entry->distance_traveled)
+                                            <span class="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">+{{ number_format($entry->distance_traveled) }} km traveled</span>
+                                        @else
+                                            <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider">First entry</span>
+                                        @endif
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                    {{ number_format($entry->mileage) }} km
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if($entry->real_consumption)
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-bold text-gray-900">{{ number_format($entry->real_consumption, 1) }} <span class="text-xs text-slate-400">L/100km</span></span>
+                                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Exp: {{ number_format($entry->truck->average_consumption, 1) }}</span>
+                                        </div>
+                                    @else
+                                        <span class="text-xs font-bold text-slate-300 italic">No data</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @php
+                                        $statusClasses = [
+                                            'normal' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                            'warning' => 'bg-amber-50 text-amber-700 border-amber-200',
+                                            'critical' => 'bg-rose-50 text-rose-700 border-rose-200',
+                                        ];
+                                        $class = $statusClasses[$entry->status] ?? 'bg-gray-50 text-gray-700 border-gray-200';
+                                    @endphp
+                                    <span class="status-badge {{ $class }}">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-current mr-1.5"></span>
+                                        {{ ucfirst($entry->status) }}
+                                    </span>
                                 </td>
                                 @if(auth()->user()->isAdmin())
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -103,7 +141,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-12 text-center text-sm font-bold text-slate-500">
+                                <td colspan="7" class="px-6 py-12 text-center text-sm font-bold text-slate-500">
                                     No fuel entries found.
                                 </td>
                             </tr>

@@ -44,7 +44,7 @@ class UserController extends Controller implements HasMiddleware
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', Password::defaults()],
-            'role' => ['required', 'in:admin,dispatcher,driver'],
+            'role' => ['required', 'in:admin,driver'],
         ]);
 
         User::create([
@@ -74,7 +74,7 @@ class UserController extends Controller implements HasMiddleware
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
-            'role' => ['required', 'in:admin,dispatcher,driver'],
+            'role' => ['required', 'in:admin,driver'],
         ]);
 
         // Logic fix: Prevent admin from demoting themselves to a non-admin role

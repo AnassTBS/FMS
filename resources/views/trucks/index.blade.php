@@ -7,7 +7,7 @@
                     {{ __('Truck Management') }}
                 </h2>
             </div>
-            @if(Auth::user()->isAdmin() || Auth::user()->isDispatcher())
+            @if(Auth::user()->isAdmin())
             <a href="{{ route('trucks.create') }}" class="btn-primary">
                 <i data-lucide="plus" class="h-4 w-4"></i>
                 Add New Truck
@@ -57,7 +57,7 @@
                                         $statusClasses = [
                                             'available' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
                                             'on_delivery' => 'bg-blue-50 text-blue-700 border-blue-200',
-                                            'reserved' => 'bg-indigo-50 text-indigo-700 border-indigo-200',
+                                            'reserved' => 'bg-amber-50 text-amber-700 border-amber-200',
                                             'busy' => 'bg-amber-50 text-amber-700 border-amber-200',
                                             'maintenance' => 'bg-rose-50 text-rose-700 border-rose-200',
                                         ];
@@ -73,7 +73,7 @@
                                         <a href="{{ route('trucks.show', $truck) }}" class="action-icon" title="View Details">
                                             <i data-lucide="eye" class="w-5 h-5"></i>
                                         </a>
-                                        @if(Auth::user()->isAdmin() || Auth::user()->isDispatcher())
+                                        @if(Auth::user()->isAdmin())
                                         <a href="{{ route('trucks.edit', $truck) }}" class="action-icon hover:!text-amber-600" title="Edit">
                                             <i data-lucide="edit-3" class="w-5 h-5"></i>
                                         </a>

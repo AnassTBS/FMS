@@ -8,7 +8,7 @@
                 </h2>
             </div>
             <div class="flex gap-2">
-                @if(Auth::user()->isAdmin() || Auth::user()->isDispatcher() || (Auth::user()->isDriver() && Auth::user()->driver?->id === $delivery->driver_id))
+                @if(Auth::user()->isAdmin() || (Auth::user()->isDriver() && Auth::user()->driver?->id === $delivery->driver_id))
                     <a href="{{ route('deliveries.edit', $delivery) }}" class="btn-secondary">
                         Edit
                     </a>
@@ -126,6 +126,74 @@
                         <span class="text-sm font-medium text-gray-400">{{ $delivery->created_at->format('M d, Y H:i') }}</span>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Fuel Monitoring Section -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+                <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
+                    <i data-lucide="fuel" class="w-4 h-4 text-indigo-600"></i>
+                    Fuel Efficiency Monitoring
+                </h3>
+                @if($delivery->fuel_status)
+                    @php
+                        $statusColors = [
+                            'normal' => 'bg-emerald-100 text-emerald-700 border-emerald-200',
+                            'warning' => 'bg-amber-100 text-amber-700 border-amber-200',
+                            'critical' => 'bg-red-100 text-red-700 border-red-200',
+                        ];
+                        $statusColor = $statusColors[$delivery->fuel_status] ?? 'bg-gray-100 text-gray-700 border-gray-200';
+                    @endphp
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border {{ $statusColor }}">
+                        {{ $delivery->fuel_status }} efficiency
+                    </span>
+                @endif
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="space-y-1">
+                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Distance</p>
+                        <p class="text-xl font-extrabold text-gray-900">{{ number_format($delivery->distance_km, 1) }} <span class="text-sm font-medium text-gray-400">km</span></p>
+                    </div>
+                    
+                    <div class="space-y-1">
+                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Expected Fuel</p>
+                        <p class="text-xl font-extrabold text-gray-900">{{ number_format($delivery->expected_fuel, 2) }} <span class="text-sm font-medium text-gray-400">Liters</span></p>
+                        <p class="text-[10px] font-bold text-gray-400 italic">Based on {{ $delivery->truck->average_consumption }} L/100km</p>
+                    </div>
+
+                    <div class="space-y-1">
+                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Actual Fuel</p>
+                        @if($delivery->actual_fuel !== null)
+                            <p class="text-xl font-extrabold text-gray-900">{{ number_format($delivery->actual_fuel, 2) }} <span class="text-sm font-medium text-gray-400">Liters</span></p>
+                            @if($delivery->fuel_cost)
+                                <p class="text-[10px] font-bold text-gray-400">Cost: {{ number_format($delivery->fuel_cost, 2) }} DH</p>
+                            @endif
+                        @else
+                            <p class="text-xl font-extrabold text-gray-300">Not recorded</p>
+                        @endif
+                    </div>
+
+                    <div class="space-y-1">
+                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Difference</p>
+                        @if($delivery->fuel_difference !== null)
+                            <p class="text-xl font-extrabold text-gray-900">{{ number_format($delivery->fuel_difference, 2) }} <span class="text-sm font-medium text-gray-400">Liters</span></p>
+                        @else
+                            <p class="text-xl font-extrabold text-gray-300">--</p>
+                        @endif
+                    </div>
+                </div>
+
+                @if($delivery->status !== 'delivered' && Auth::user()->isDriver())
+                    <div class="mt-6 p-4 bg-indigo-50 rounded-xl border border-indigo-100 flex items-start gap-3">
+                        <i data-lucide="info" class="w-5 h-5 text-indigo-500 mt-0.5"></i>
+                        <div>
+                            <p class="text-sm font-bold text-indigo-950">Driver Note</p>
+                            <p class="text-xs font-medium text-indigo-700">Please record the actual fuel consumption once the delivery is marked as **Delivered** in the edit screen.</p>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

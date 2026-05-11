@@ -19,6 +19,12 @@ class Delivery extends Model
         'driver_id',
         'origin',
         'destination',
+        'distance_km',
+        'expected_fuel',
+        'actual_fuel',
+        'fuel_cost',
+        'fuel_difference',
+        'fuel_status',
         'status',
         'departure_date',
         'arrival_date',
@@ -27,6 +33,11 @@ class Delivery extends Model
     protected $casts = [
         'departure_date' => 'datetime',
         'arrival_date' => 'datetime',
+        'distance_km' => 'double',
+        'expected_fuel' => 'double',
+        'actual_fuel' => 'double',
+        'fuel_cost' => 'double',
+        'fuel_difference' => 'double',
     ];
 
     /**
@@ -70,9 +81,6 @@ class Delivery extends Model
 
     /**
      * Automatically synchronize the delivery status based on time rules.
-     * Assigned: now < departure
-     * In Transit: departure <= now < arrival
-     * Delivered: now >= arrival
      */
     public function syncStatus(): void
     {
@@ -90,6 +98,34 @@ class Delivery extends Model
         if ($this->status !== $newStatus) {
             $this->status = $newStatus;
             $this->save();
+        }
+    }
+
+    /**
+     * Calculate expected fuel based on truck consumption and distance.
+     */
+    public function calculateExpectedFuel(): void
+    {
+        if ($this->truck && $this->distance_km > 0) {
+            $this->expected_fuel = ($this->truck->average_consumption * $this->distance_km) / 100;
+        }
+    }
+
+    /**
+     * Calculate fuel difference and status.
+     */
+    public function calculateFuelEfficiency(): void
+    {
+        if ($this->actual_fuel !== null && $this->expected_fuel > 0) {
+            $this->fuel_difference = abs($this->actual_fuel - $this->expected_fuel);
+            
+            if ($this->fuel_difference <= 10) {
+                $this->fuel_status = 'normal';
+            } elseif ($this->fuel_difference <= 30) {
+                $this->fuel_status = 'warning';
+            } else {
+                $this->fuel_status = 'critical';
+            }
         }
     }
 

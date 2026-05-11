@@ -20,7 +20,7 @@ class DeliveryController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('role:admin|dispatcher', only: ['create', 'store', 'destroy']),
+            new Middleware('role:admin', only: ['create', 'store', 'destroy']),
         ];
     }
 
@@ -65,8 +65,9 @@ class DeliveryController extends Controller implements HasMiddleware
     {
         $delivery = new Delivery($request->validated());
         
-        // Logic fix: Initial status calculation
-        $delivery->status = Delivery::STATUS_ASSIGNED; // Default
+        // Planning Phase: Calculate expected fuel
+        $delivery->calculateExpectedFuel();
+        $delivery->status = Delivery::STATUS_ASSIGNED;
         $delivery->save();
         
         // Trigger automatic sync
@@ -131,6 +132,12 @@ class DeliveryController extends Controller implements HasMiddleware
 
         $delivery->update($request->validated());
 
+        // Execution/Monitoring Phase: Handle fuel efficiency on completion
+        if ($delivery->status === Delivery::STATUS_DELIVERED) {
+            $delivery->calculateFuelEfficiency();
+            $delivery->save();
+        }
+
         // Reset old assets if they were swapped
         if ($oldTruckId !== $delivery->truck_id) {
             Truck::find($oldTruckId)->update(['status' => 'available']);
@@ -163,7 +170,7 @@ class DeliveryController extends Controller implements HasMiddleware
 
     /**
      * Sync truck and driver statuses based on delivery status.
-     * Mappings: Assigned -> reserved, In Transit -> busy, Delivered -> available.
+     * Mappings: Assigned -> Truck:reserved / Driver:reserved, In Transit -> Truck:on_delivery / Driver:busy, Delivered -> available.
      */
     private function syncEntityStatuses(Delivery $delivery): void
     {
@@ -176,7 +183,7 @@ class DeliveryController extends Controller implements HasMiddleware
             $truck->update(['status' => 'reserved']);
             $driver->update(['status' => 'reserved']);
         } elseif ($delivery->status === Delivery::STATUS_IN_TRANSIT) {
-            $truck->update(['status' => 'busy']);
+            $truck->update(['status' => 'on_delivery']);
             $driver->update(['status' => 'busy']);
         } elseif ($delivery->status === Delivery::STATUS_DELIVERED) {
             $truck->update(['status' => 'available']);

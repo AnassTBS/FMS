@@ -29,7 +29,7 @@
                     <label for="role" class="block text-sm font-bold text-slate-700">Role</label>
                     <select id="role" name="role" class="mt-1 block w-full" required>
                         <option value="driver" {{ old('role') == 'driver' ? 'selected' : '' }}>Driver</option>
-                        <option value="dispatcher" {{ old('role') == 'dispatcher' ? 'selected' : '' }}>Dispatcher</option>
+
                         <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                     </select>
                 </div>

@@ -41,10 +41,10 @@ class MaintenanceController extends Controller implements HasMiddleware
 
         $truck = Truck::find($validated['truck_id']);
 
-        // Logic fix: Prevent maintenance if truck is on delivery
-        if ($truck->status === 'on_delivery') {
+        // Logic fix: Prevent maintenance if truck is on delivery or reserved
+        if (in_array($truck->status, ['on_delivery', 'busy', 'reserved'])) {
             return back()->withInput()->withErrors([
-                'truck_id' => "Cannot schedule maintenance while the truck is on delivery."
+                'truck_id' => "Cannot schedule maintenance while the truck is assigned or on delivery."
             ]);
         }
 

@@ -11,7 +11,7 @@ class StoreTruckRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()?->isAdmin() || $this->user()?->isDispatcher();
+        return $this->user()?->isAdmin();
     }
 
     /**
@@ -23,6 +23,7 @@ class StoreTruckRequest extends FormRequest
             'registration_number' => 'required|string|unique:trucks,registration_number|max:255',
             'model' => 'required|string|max:255',
             'capacity' => 'required|integer|min:1',
+            'average_consumption' => 'required|numeric|min:0.1',
             'status' => 'required|in:available,on_delivery,maintenance,reserved,busy',
         ];
     }

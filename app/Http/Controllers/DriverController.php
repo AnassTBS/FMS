@@ -17,7 +17,7 @@ class DriverController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('role:admin|dispatcher'),
+            new Middleware('role:admin'),
         ];
     }
     /**

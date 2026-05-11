@@ -44,7 +44,7 @@ Route::middleware('auth')->group(function () {
     // Maintenances
     Route::resource('maintenances', MaintenanceController::class)->middleware('can:manage-maintenance');
 
-    // Deliveries (Accessible by Admin and Dispatcher, restricted view for Driver)
+    // Deliveries (Accessible by Admin, restricted view for Driver)
     Route::resource('deliveries', DeliveryController::class);
     Route::resource('trucks', TruckController::class);
     Route::resource('drivers', DriverController::class);
