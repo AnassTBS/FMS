@@ -72,9 +72,27 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                    <div class="flex flex-col">
-                                        <span class="font-medium">{{ $delivery->departure_date->format('M d, Y') }}</span>
-                                        <span class="text-xs text-gray-400">{{ $delivery->departure_date->format('H:i') }}</span>
+                                    <div class="flex flex-col gap-1">
+                                        <div class="flex items-center gap-1.5">
+                                            <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
+                                            <span class="font-medium text-xs">{{ $delivery->departure_date->format('M d, H:i') }}</span>
+                                        </div>
+                                        @if($delivery->arrival_date)
+                                            <div class="flex items-center gap-1.5">
+                                                @if($delivery->status === \App\Models\Delivery::STATUS_DELIVERED)
+                                                    <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-500" title="Actual Arrival"></i>
+                                                    <span class="font-bold text-xs text-emerald-700">{{ $delivery->arrival_date->format('M d, H:i') }}</span>
+                                                @else
+                                                    <i data-lucide="clock" class="w-3.5 h-3.5 text-blue-400" title="Estimated Arrival"></i>
+                                                    <span class="font-medium text-xs text-blue-600">Est. {{ $delivery->arrival_date->format('M d, H:i') }}</span>
+                                                @endif
+                                            </div>
+                                        @else
+                                            <div class="flex items-center gap-1.5">
+                                                <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-300"></i>
+                                                <span class="text-xs text-slate-400 font-medium italic">No estimate</span>
+                                            </div>
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

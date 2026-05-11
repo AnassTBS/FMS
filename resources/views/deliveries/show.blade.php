@@ -114,8 +114,10 @@
                         <span class="text-sm font-bold text-gray-900">{{ $delivery->departure_date->format('M d, Y H:i') }}</span>
                     </div>
                     <div class="flex justify-between items-center py-2 border-b border-gray-50">
-                        <span class="text-sm text-gray-500">Estimated Arrival</span>
-                        <span class="text-sm font-bold text-gray-900">
+                        <span class="text-sm text-gray-500">
+                            {{ $delivery->status === \App\Models\Delivery::STATUS_DELIVERED ? 'Actual Arrival' : 'Estimated Arrival' }}
+                        </span>
+                        <span class="text-sm font-bold {{ $delivery->arrival_date ? 'text-gray-900' : 'text-gray-400' }}">
                             {{ $delivery->arrival_date ? $delivery->arrival_date->format('M d, Y H:i') : 'Pending' }}
                         </span>
                     </div>

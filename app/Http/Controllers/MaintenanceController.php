@@ -39,13 +39,33 @@ class MaintenanceController extends Controller implements HasMiddleware
             'target_mileage' => 'required|numeric|min:0',
         ]);
 
+        $truck = Truck::find($validated['truck_id']);
+
+        // Logic fix: Prevent maintenance if truck is on delivery
+        if ($truck->status === 'on_delivery') {
+            return back()->withInput()->withErrors([
+                'truck_id' => "Cannot schedule maintenance while the truck is on delivery."
+            ]);
+        }
+
+        // Logic fix: Check if truck already has a pending maintenance
+        $pendingMaintenance = Maintenance::where('truck_id', $validated['truck_id'])
+            ->where('is_completed', false)
+            ->exists();
+
+        if ($pendingMaintenance) {
+            return back()->withInput()->withErrors([
+                'truck_id' => "This truck already has a pending maintenance record."
+            ]);
+        }
+
         Maintenance::create($validated);
 
-        // Set the truck to maintenance status when a maintenance record is created
-        Truck::find($validated['truck_id'])?->update(['status' => 'maintenance']);
+        // Set the truck to maintenance status
+        $truck->update(['status' => 'maintenance']);
 
         return redirect()->route('maintenances.index')
-            ->with('success', 'Maintenance scheduled successfully.');
+            ->with('success', 'Maintenance scheduled successfully and truck status updated.');
     }
 
     public function update(Request $request, Maintenance $maintenance): RedirectResponse

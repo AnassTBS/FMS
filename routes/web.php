@@ -13,7 +13,7 @@ use App\Http\Controllers\FuelEntryController;
 use App\Http\Controllers\MaintenanceController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('dashboard');
 });
 
 // Auth Routes

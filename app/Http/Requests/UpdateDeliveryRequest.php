@@ -28,12 +28,6 @@ class UpdateDeliveryRequest extends FormRequest
      */
     public function rules(): array
     {
-        if ($this->user()?->isDriver()) {
-            return [
-                'status' => ['required', Rule::in(Delivery::statuses())],
-            ];
-        }
-
         $deliveryId = $this->route('delivery')->id;
 
         return [
@@ -74,15 +68,9 @@ class UpdateDeliveryRequest extends FormRequest
                 },
             ],
             'origin' => 'required|string|max:255',
-            'destination' => 'required|string|max:255',
-            'status' => ['required', Rule::in(Delivery::statuses())],
+            'destination' => 'required|string|max:255|different:origin',
             'departure_date' => 'required|date',
-            'arrival_date' => [
-                'nullable',
-                'date',
-                'after:departure_date',
-                Rule::requiredIf($this->input('status') === Delivery::STATUS_DELIVERED),
-            ],
+            'arrival_date' => 'nullable|date|after:departure_date',
         ];
     }
 

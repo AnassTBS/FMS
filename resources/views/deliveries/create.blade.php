@@ -86,4 +86,28 @@
             </form>
         </div>
     </div>
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusSelect = document.getElementById('status');
+            const arrivalInput = document.getElementById('arrival_date');
+
+            if (statusSelect && arrivalInput) {
+                statusSelect.addEventListener('change', function() {
+                    if (this.value === 'delivered' && !arrivalInput.value) {
+                        const now = new Date();
+                        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                        arrivalInput.value = now.toISOString().slice(0, 16);
+                    }
+                });
+
+                arrivalInput.addEventListener('change', function() {
+                    if (this.value) {
+                        statusSelect.value = 'delivered';
+                    }
+                });
+            }
+        });
+    </script>
+    @endpush
 </x-app-layout>

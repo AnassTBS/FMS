@@ -24,7 +24,7 @@ class TruckController extends Controller implements HasMiddleware
      */
     public function index(): View
     {
-        $trucks = Truck::latest()->paginate(10);
+        $trucks = Truck::withCount('deliveries')->latest()->paginate(10);
         return view('trucks.index', compact('trucks'));
     }
 
@@ -52,7 +52,14 @@ class TruckController extends Controller implements HasMiddleware
      */
     public function show(Truck $truck): View
     {
-        $truck->load('deliveries');
+        $truck->load(['deliveries' => function($q) {
+            $q->latest()->take(5);
+        }, 'maintenances' => function($q) {
+            $q->latest()->take(5);
+        }, 'fuelEntries' => function($q) {
+            $q->latest()->take(5);
+        }]);
+        
         return view('trucks.show', compact('truck'));
     }
 
@@ -80,8 +87,12 @@ class TruckController extends Controller implements HasMiddleware
      */
     public function destroy(Truck $truck): RedirectResponse
     {
-        if ($truck->deliveries()->exists()) {
-            return back()->with('error', 'Cannot delete truck with associated deliveries.');
+        $hasActiveDeliveries = $truck->deliveries()
+            ->whereIn('status', [\App\Models\Delivery::STATUS_ASSIGNED, \App\Models\Delivery::STATUS_IN_TRANSIT])
+            ->exists();
+
+        if ($hasActiveDeliveries) {
+            return back()->with('error', 'Cannot delete truck while it is assigned to an active delivery.');
         }
 
         $truck->delete();

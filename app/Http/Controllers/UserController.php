@@ -77,6 +77,11 @@ class UserController extends Controller implements HasMiddleware
             'role' => ['required', 'in:admin,dispatcher,driver'],
         ]);
 
+        // Logic fix: Prevent admin from demoting themselves to a non-admin role
+        if ($user->id === auth()->id() && $request->role !== 'admin') {
+            return back()->with('error', 'You cannot demote yourself from the admin role.');
+        }
+
         $user->update($request->only('name', 'email', 'role'));
 
         if ($request->filled('password')) {
@@ -85,6 +90,8 @@ class UserController extends Controller implements HasMiddleware
             ]);
             $user->update(['password' => Hash::make($request->password)]);
         }
+
+        \App\Models\ActivityLog::log('user_updated', "Updated profile for {$user->name}", $user);
 
         return redirect()->route('users.index')
             ->with('success', 'User updated successfully.');
@@ -98,6 +105,13 @@ class UserController extends Controller implements HasMiddleware
         if ($user->id === auth()->id()) {
             return back()->with('error', 'You cannot delete yourself.');
         }
+
+        // Logic fix: Prevent deleting user linked to a driver with active work
+        if ($user->driver && $user->driver->deliveries()->whereIn('status', [\App\Models\Delivery::STATUS_ASSIGNED, \App\Models\Delivery::STATUS_IN_TRANSIT])->exists()) {
+            return back()->with('error', 'Cannot delete user linked to a driver with active deliveries.');
+        }
+
+        \App\Models\ActivityLog::log('user_deleted', "Deleted user account {$user->name} ({$user->email})");
 
         $user->delete();
 

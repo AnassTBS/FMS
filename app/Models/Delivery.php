@@ -68,6 +68,31 @@ class Delivery extends Model
         return self::statusLabels()[$this->status] ?? ucfirst(str_replace('_', ' ', $this->status));
     }
 
+    /**
+     * Automatically synchronize the delivery status based on time rules.
+     * Assigned: now < departure
+     * In Transit: departure <= now < arrival
+     * Delivered: now >= arrival
+     */
+    public function syncStatus(): void
+    {
+        $now = now();
+        $newStatus = $this->status;
+
+        if ($now < $this->departure_date) {
+            $newStatus = self::STATUS_ASSIGNED;
+        } elseif ($this->arrival_date && $now >= $this->arrival_date) {
+            $newStatus = self::STATUS_DELIVERED;
+        } elseif ($now >= $this->departure_date) {
+            $newStatus = self::STATUS_IN_TRANSIT;
+        }
+
+        if ($this->status !== $newStatus) {
+            $this->status = $newStatus;
+            $this->save();
+        }
+    }
+
     public function isActive(): bool
     {
         return in_array($this->status, [self::STATUS_ASSIGNED, self::STATUS_IN_TRANSIT], true);

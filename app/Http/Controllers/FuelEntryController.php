@@ -39,7 +39,17 @@ class FuelEntryController extends Controller implements HasMiddleware
     public function create(): View
     {
         $trucks = Truck::orderBy('registration_number')->get();
-        return view('fuel_entries.create', compact('trucks'));
+        
+        // If the user is a driver, try to find their current truck
+        $defaultTruckId = null;
+        if (auth()->user()->isDriver() && auth()->user()->driver) {
+            $defaultTruckId = auth()->user()->driver->deliveries()
+                ->whereIn('status', [\App\Models\Delivery::STATUS_ASSIGNED, \App\Models\Delivery::STATUS_IN_TRANSIT])
+                ->latest()
+                ->first()?->truck_id;
+        }
+
+        return view('fuel_entries.create', compact('trucks', 'defaultTruckId'));
     }
 
     /**
@@ -54,6 +64,18 @@ class FuelEntryController extends Controller implements HasMiddleware
             'amount' => 'required|numeric|min:0.1',
             'mileage' => 'required|numeric|min:0',
         ]);
+
+        // Logic fix: Ensure mileage is not decreasing
+        $lastEntry = FuelEntry::where('truck_id', $validated['truck_id'])
+            ->orderBy('date', 'desc')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if ($lastEntry && $validated['mileage'] < $lastEntry->mileage) {
+            return back()->withInput()->withErrors([
+                'mileage' => "Mileage cannot be less than the previous entry for this truck (" . number_format($lastEntry->mileage) . " km)."
+            ]);
+        }
 
         FuelEntry::create($validated);
 

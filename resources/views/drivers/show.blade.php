@@ -15,63 +15,102 @@
         </div>
     </x-slot>
 
-    <div class="surface">
-        <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Driver Info -->
-                <div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-4 border-b pb-2">Information</h3>
-                    <dl class="grid grid-cols-1 gap-y-4">
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Full Name</dt>
-                            <dd class="mt-1 text-sm text-gray-900 font-semibold">{{ $driver->name }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">License Number</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ $driver->license_number }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Phone</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ $driver->phone }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Status</dt>
-                            <dd class="mt-1 text-sm">
-                                @php
-                                    $statusClasses = [
-                                        'available' => 'bg-green-100 text-green-800',
-                                        'busy' => 'bg-blue-100 text-blue-800',
-                                        'inactive' => 'bg-red-100 text-red-800',
-                                    ];
-                                    $class = $statusClasses[$driver->status] ?? 'bg-gray-100 text-gray-800';
-                                @endphp
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $class }}">
-                                    {{ ucfirst($driver->status) }}
-                                </span>
-                            </dd>
-                        </div>
-                    </dl>
+    <div class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Profile Card -->
+            <div class="md:col-span-1 space-y-6">
+                <div class="surface p-6 text-center">
+                    <div class="mx-auto w-20 h-20 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-4">
+                        <i data-lucide="user" class="w-10 h-10"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900">{{ $driver->name }}</h3>
+                    <p class="text-sm text-gray-500 mb-4">{{ $driver->license_number }}</p>
+                    
+                    @php
+                        $statusClasses = [
+                            'available' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                            'busy' => 'bg-blue-50 text-blue-700 border-blue-200',
+                            'inactive' => 'bg-rose-50 text-rose-700 border-rose-200',
+                        ];
+                        $class = $statusClasses[$driver->status] ?? 'bg-gray-50 text-gray-700 border-gray-200';
+                    @endphp
+                    <span class="status-badge {{ $class }} justify-center mx-auto">
+                        <span class="w-1.5 h-1.5 rounded-full bg-current mr-1.5"></span>
+                        {{ ucfirst($driver->status) }}
+                    </span>
                 </div>
 
-                <!-- Statistics -->
-                <div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-4 border-b pb-2">Delivery Statistics</h3>
-                    <dl class="grid grid-cols-1 gap-y-4">
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Total Deliveries</dt>
-                            <dd class="mt-1 text-sm text-gray-900 font-semibold">{{ $driver->deliveries->count() }}</dd>
+                <div class="surface p-6">
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Contact Details</h4>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                                <i data-lucide="phone" class="w-4 h-4"></i>
+                            </div>
+                            <span class="text-sm font-medium text-slate-700">{{ $driver->phone }}</span>
                         </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Latest Route</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
-                                @if($latest = $driver->deliveries()->latest()->first())
-                                    {{ $latest->origin }} to {{ $latest->destination }} ({{ $latest->created_at->format('M d, Y') }})
-                                @else
-                                    <span class="text-gray-400 italic">No deliveries recorded</span>
-                                @endif
-                            </dd>
+                        @if($driver->user)
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                                <i data-lucide="mail" class="w-4 h-4"></i>
+                            </div>
+                            <span class="text-sm font-medium text-slate-700">{{ $driver->user->email }}</span>
                         </div>
-                    </dl>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats and History -->
+            <div class="md:col-span-2 space-y-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="surface p-6">
+                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Total Deliveries</p>
+                        <p class="text-3xl font-extrabold text-slate-900">{{ $driver->deliveries->count() }}</p>
+                    </div>
+                    <div class="surface p-6">
+                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Success Rate</p>
+                        <p class="text-3xl font-extrabold text-emerald-600">100%</p>
+                    </div>
+                </div>
+
+                <div class="surface overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-slate-950 flex items-center gap-2">
+                            <i data-lucide="package" class="w-4 h-4 text-indigo-600"></i>
+                            Recent Delivery History
+                        </h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-slate-100">
+                            <thead class="bg-slate-50/50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Route</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                @forelse($driver->deliveries()->latest()->take(5)->get() as $delivery)
+                                <tr>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm font-bold text-slate-900">{{ $delivery->origin }} → {{ $delivery->destination }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-xs text-slate-500">
+                                        {{ $delivery->created_at->format('M d, Y') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-xs font-bold text-indigo-600 capitalize">{{ str_replace('_', ' ', $delivery->status) }}</span>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="3" class="px-6 py-8 text-center text-sm text-slate-400 italic">No delivery records found</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

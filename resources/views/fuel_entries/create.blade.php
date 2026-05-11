@@ -22,7 +22,7 @@
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                 <option value="">Select a Truck</option>
                                 @foreach($trucks as $truck)
-                                    <option value="{{ $truck->id }}" {{ old('truck_id') == $truck->id ? 'selected' : '' }}>
+                                    <option value="{{ $truck->id }}" {{ old('truck_id', $defaultTruckId) == $truck->id ? 'selected' : '' }}>
                                         {{ $truck->registration_number }} ({{ $truck->model }})
                                     </option>
                                 @endforeach

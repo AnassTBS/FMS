@@ -33,13 +33,25 @@ class ActivityLogController extends Controller implements HasMiddleware
             $query->where('action', 'like', '%' . $request->action . '%');
         }
 
-        if ($request->filled('date')) {
-            $query->whereDate('created_at', $request->date);
+        if ($request->filled('target_type')) {
+            $query->where('target_type', $request->target_type);
         }
 
-        $logs = $query->paginate(20);
-        $users = User::orderBy('name')->get();
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
 
-        return view('activity_logs.index', compact('logs', 'users'));
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        $logs = $query->paginate(30);
+        $users = User::orderBy('name')->get();
+        $targetTypes = ActivityLog::whereNotNull('target_type')
+            ->distinct()
+            ->pluck('target_type')
+            ->sort();
+
+        return view('activity_logs.index', compact('logs', 'users', 'targetTypes'));
     }
 }

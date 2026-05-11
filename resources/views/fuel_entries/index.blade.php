@@ -13,6 +13,42 @@
             </a>
         </div>
     </x-slot>
+    
+    <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="surface p-4 flex items-center gap-4">
+            <div class="rounded-xl bg-amber-50 p-3 text-amber-600">
+                <i data-lucide="droplet" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Fuel</p>
+                <p class="text-xl font-extrabold text-slate-900">{{ number_format($fuelEntries->sum('liters'), 1) }} L</p>
+            </div>
+        </div>
+        <div class="surface p-4 flex items-center gap-4">
+            <div class="rounded-xl bg-emerald-50 p-3 text-emerald-600">
+                <i data-lucide="dollar-sign" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Cost</p>
+                <p class="text-xl font-extrabold text-slate-900">${{ number_format($fuelEntries->sum('amount'), 2) }}</p>
+            </div>
+        </div>
+        <div class="surface p-4 flex items-center gap-4">
+            <div class="rounded-xl bg-indigo-50 p-3 text-indigo-600">
+                <i data-lucide="trending-up" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Avg Price/L</p>
+                <p class="text-xl font-extrabold text-slate-900">
+                    @if($fuelEntries->sum('liters') > 0)
+                        ${{ number_format($fuelEntries->sum('amount') / $fuelEntries->sum('liters'), 2) }}
+                    @else
+                        $0.00
+                    @endif
+                </p>
+            </div>
+        </div>
+    </div>
 
     <div class="surface">
         <div class="p-0">

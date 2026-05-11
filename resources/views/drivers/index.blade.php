@@ -24,6 +24,7 @@
                         <tr>
                             <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Driver Details</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">License</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Deliveries</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
                             <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
@@ -45,11 +46,18 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                     <span class="font-medium">{{ $driver->license_number }}</span>
                                 </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <span class="inline-flex items-center gap-1 font-bold text-slate-700">
+                                        <i data-lucide="package" class="w-3.5 h-3.5 text-slate-400"></i>
+                                        {{ $driver->deliveries_count }}
+                                    </span>
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @php
                                         $statusClasses = [
                                             'available' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
                                             'busy' => 'bg-blue-50 text-blue-700 border-blue-200',
+                                            'reserved' => 'bg-indigo-50 text-indigo-700 border-indigo-200',
                                             'inactive' => 'bg-rose-50 text-rose-700 border-rose-200',
                                         ];
                                         $class = $statusClasses[$driver->status] ?? 'bg-gray-50 text-gray-700 border-gray-200';

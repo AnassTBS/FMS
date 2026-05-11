@@ -31,7 +31,7 @@ class UpdateTruckRequest extends FormRequest
             ],
             'model' => 'required|string|max:255',
             'capacity' => 'required|integer|min:1',
-            'status' => 'required|in:available,on_delivery,maintenance',
+            'status' => 'required|in:available,on_delivery,maintenance,reserved,busy',
         ];
     }
 }

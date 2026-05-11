@@ -14,6 +14,36 @@
         </div>
     </x-slot>
 
+    <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="surface p-4 flex items-center gap-4">
+            <div class="rounded-xl bg-amber-50 p-3 text-amber-600">
+                <i data-lucide="clock" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Pending</p>
+                <p class="text-xl font-extrabold text-slate-900">{{ $maintenances->where('is_completed', false)->count() }} Repairs</p>
+            </div>
+        </div>
+        <div class="surface p-4 flex items-center gap-4">
+            <div class="rounded-xl bg-emerald-50 p-3 text-emerald-600">
+                <i data-lucide="check-circle" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Completed</p>
+                <p class="text-xl font-extrabold text-slate-900">{{ $maintenances->where('is_completed', true)->count() }} Records</p>
+            </div>
+        </div>
+        <div class="surface p-4 flex items-center gap-4">
+            <div class="rounded-xl bg-rose-50 p-3 text-rose-600">
+                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Trucks Blocked</p>
+                <p class="text-xl font-extrabold text-slate-900">{{ \App\Models\Truck::where('status', 'maintenance')->count() }} Units</p>
+            </div>
+        </div>
+    </div>
+
     <div class="surface">
         <div class="p-0">
             <div class="overflow-x-auto">

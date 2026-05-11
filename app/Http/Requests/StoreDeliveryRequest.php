@@ -57,14 +57,16 @@ class StoreDeliveryRequest extends FormRequest
                 },
             ],
             'origin' => 'required|string|max:255',
-            'destination' => 'required|string|max:255',
-            'status' => ['required', Rule::in(Delivery::statuses())],
-            'departure_date' => 'required|date',
+            'destination' => 'required|string|max:255|different:origin',
+            'departure_date' => [
+                'required',
+                'date',
+                'after_or_equal:now',
+            ],
             'arrival_date' => [
                 'nullable',
                 'date',
                 'after:departure_date',
-                Rule::requiredIf($this->input('status') === Delivery::STATUS_DELIVERED),
             ],
         ];
     }
@@ -75,6 +77,7 @@ class StoreDeliveryRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'departure_date.after_or_equal' => 'The departure date cannot be in the past.',
             'arrival_date.required_if' => 'The arrival date is required when the status is delivered.',
             'arrival_date.after' => 'The arrival date must be after the departure date.',
         ];

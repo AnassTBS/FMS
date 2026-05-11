@@ -49,9 +49,17 @@
                                         ];
                                         $class = $roleClasses[$user->role] ?? 'bg-gray-100 text-gray-700 border-gray-200';
                                     @endphp
-                                    <span class="status-badge {{ $class }}">
-                                        {{ ucfirst($user->role) }}
-                                    </span>
+                                    <div class="flex flex-col gap-1">
+                                        <span class="status-badge {{ $class }}">
+                                            {{ ucfirst($user->role) }}
+                                        </span>
+                                        @if($user->driver)
+                                        <span class="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-500 uppercase">
+                                            <i data-lucide="link" class="w-2.5 h-2.5"></i>
+                                            Linked Driver
+                                        </span>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $user->created_at->format('M d, Y') }}

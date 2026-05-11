@@ -31,7 +31,7 @@ class UpdateDriverRequest extends FormRequest
                 Rule::unique('drivers')->ignore($driverId),
             ],
             'phone' => 'required|string|max:20',
-            'status' => 'required|in:available,busy,inactive',
+            'status' => 'required|in:available,busy,inactive,reserved',
             'user_id' => [
                 'nullable',
                 Rule::exists('users', 'id')->where('role', 'driver'),

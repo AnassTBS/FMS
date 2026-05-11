@@ -23,7 +23,7 @@ class StoreTruckRequest extends FormRequest
             'registration_number' => 'required|string|unique:trucks,registration_number|max:255',
             'model' => 'required|string|max:255',
             'capacity' => 'required|integer|min:1',
-            'status' => 'required|in:available,on_delivery,maintenance',
+            'status' => 'required|in:available,on_delivery,maintenance,reserved,busy',
         ];
     }
 }

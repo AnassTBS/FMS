@@ -11,7 +11,7 @@
     <div class="space-y-6">
         <!-- Filters -->
         <div class="surface p-6">
-            <form action="{{ route('activity-logs.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <form action="{{ route('activity-logs.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                 <div>
                     <label for="user_id" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">User</label>
                     <select name="user_id" id="user_id" class="w-full rounded-lg border-gray-200 text-sm focus:ring-indigo-500 focus:border-indigo-500">
@@ -22,13 +22,22 @@
                     </select>
                 </div>
                 <div>
-                    <label for="action" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Action</label>
-                    <input type="text" name="action" id="action" value="{{ request('action') }}" placeholder="Filter action..."
+                    <label for="target_type" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Entity</label>
+                    <select name="target_type" id="target_type" class="w-full rounded-lg border-gray-200 text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="">All Entities</option>
+                        @foreach($targetTypes as $type)
+                            <option value="{{ $type }}" {{ request('target_type') == $type ? 'selected' : '' }}>{{ $type }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="date_from" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">From</label>
+                    <input type="date" name="date_from" id="date_from" value="{{ request('date_from') }}"
                         class="w-full rounded-lg border-gray-200 text-sm focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
                 <div>
-                    <label for="date" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Date</label>
-                    <input type="date" name="date" id="date" value="{{ request('date') }}"
+                    <label for="date_to" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">To</label>
+                    <input type="date" name="date_to" id="date_to" value="{{ request('date_to') }}"
                         class="w-full rounded-lg border-gray-200 text-sm focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
                 <div class="flex gap-2">
@@ -36,7 +45,7 @@
                         Filter
                     </button>
                     <a href="{{ route('activity-logs.index') }}" class="btn-secondary">
-                        Reset
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
                     </a>
                 </div>
             </form>

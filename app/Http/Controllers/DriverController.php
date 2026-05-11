@@ -25,7 +25,7 @@ class DriverController extends Controller implements HasMiddleware
      */
     public function index(): View
     {
-        $drivers = Driver::latest()->paginate(10);
+        $drivers = Driver::withCount('deliveries')->latest()->paginate(10);
         return view('drivers.index', compact('drivers'));
     }
 
@@ -94,8 +94,12 @@ class DriverController extends Controller implements HasMiddleware
      */
     public function destroy(Driver $driver): RedirectResponse
     {
-        if ($driver->deliveries()->exists()) {
-            return back()->with('error', 'Cannot delete driver with associated deliveries.');
+        $hasActiveDeliveries = $driver->deliveries()
+            ->whereIn('status', [\App\Models\Delivery::STATUS_ASSIGNED, \App\Models\Delivery::STATUS_IN_TRANSIT])
+            ->exists();
+
+        if ($hasActiveDeliveries) {
+            return back()->with('error', 'Cannot delete driver with active deliveries in progress.');
         }
 
         $driver->delete();
