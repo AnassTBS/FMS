@@ -54,6 +54,8 @@ class DriverDeliveryWorkflowTest extends TestCase
         $this->actingAs($driverUser)
             ->put(route('deliveries.update', $otherDelivery), [
                 'status' => Delivery::STATUS_DELIVERED,
+                'actual_fuel' => 50,
+                'fuel_cost' => 700,
             ])
             ->assertForbidden();
 
@@ -67,6 +69,8 @@ class DriverDeliveryWorkflowTest extends TestCase
         $this->actingAs($driverUser)
             ->put(route('deliveries.update', $delivery), [
                 'status' => Delivery::STATUS_DELIVERED,
+                'actual_fuel' => 50,
+                'fuel_cost' => 700,
             ])
             ->assertRedirect(route('deliveries.index'));
 
@@ -101,6 +105,7 @@ class DriverDeliveryWorkflowTest extends TestCase
             'registration_number' => fake()->unique()->bothify('TRK-####'),
             'model' => 'Volvo FH',
             'capacity' => 12000,
+            'average_consumption' => 35,
             'status' => 'available',
         ]);
         $delivery = Delivery::create([
@@ -108,6 +113,8 @@ class DriverDeliveryWorkflowTest extends TestCase
             'driver_id' => $driver->id,
             'origin' => fake()->unique()->city(),
             'destination' => fake()->unique()->city(),
+            'distance_km' => 120,
+            'expected_fuel' => 42,
             'status' => Delivery::STATUS_ASSIGNED,
             'departure_date' => now()->addHour(),
         ]);

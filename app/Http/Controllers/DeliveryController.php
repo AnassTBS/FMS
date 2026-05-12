@@ -127,16 +127,47 @@ class DeliveryController extends Controller implements HasMiddleware
      */
     public function update(UpdateDeliveryRequest $request, Delivery $delivery): RedirectResponse
     {
+        if (Auth::user()->isDriver()) {
+            if ($delivery->driver_id !== Auth::user()->driver?->id) {
+                abort(403);
+            }
+
+            if ($delivery->actual_fuel !== null) {
+                return back()->withErrors([
+                    'actual_fuel' => 'Fuel data has already been submitted and cannot be edited.',
+                ]);
+            }
+
+            $validated = $request->validated();
+
+            $delivery->status = $validated['status'];
+
+            if ($delivery->status === Delivery::STATUS_DELIVERED) {
+                $delivery->arrival_date ??= now();
+                $delivery->actual_fuel = $validated['actual_fuel'] ?? null;
+                $delivery->fuel_cost = $validated['fuel_cost'] ?? null;
+
+                if ($delivery->actual_fuel !== null) {
+                    $delivery->calculateFuelEfficiency();
+                }
+            }
+
+            $delivery->save();
+            $this->syncEntityStatuses($delivery);
+
+            return redirect()->route('deliveries.index')
+                ->with('success', 'Delivery updated and fuel monitoring data recorded.');
+        }
+
         $oldTruckId = $delivery->truck_id;
         $oldDriverId = $delivery->driver_id;
 
         $delivery->update($request->validated());
+        $delivery->calculateExpectedFuel();
+        $delivery->save();
 
         // Execution/Monitoring Phase: Handle fuel efficiency on completion
-        if ($delivery->status === Delivery::STATUS_DELIVERED) {
-            $delivery->calculateFuelEfficiency();
-            $delivery->save();
-        }
+        // Admin has read access only for delivery fuel monitoring values.
 
         // Reset old assets if they were swapped
         if ($oldTruckId !== $delivery->truck_id) {
@@ -146,7 +177,6 @@ class DeliveryController extends Controller implements HasMiddleware
             Driver::find($oldDriverId)->update(['status' => 'available']);
         }
 
-        $delivery->syncStatus();
         $this->syncEntityStatuses($delivery);
 
         return redirect()->route('deliveries.index')
@@ -170,7 +200,7 @@ class DeliveryController extends Controller implements HasMiddleware
 
     /**
      * Sync truck and driver statuses based on delivery status.
-     * Mappings: Assigned -> Truck:reserved / Driver:reserved, In Transit -> Truck:on_delivery / Driver:busy, Delivered -> available.
+     * Mappings: Assigned/In Transit -> Truck:on_delivery / Driver:busy, Delivered -> available.
      */
     private function syncEntityStatuses(Delivery $delivery): void
     {
@@ -179,10 +209,7 @@ class DeliveryController extends Controller implements HasMiddleware
 
         if (!$truck || !$driver) return;
 
-        if ($delivery->status === Delivery::STATUS_ASSIGNED) {
-            $truck->update(['status' => 'reserved']);
-            $driver->update(['status' => 'reserved']);
-        } elseif ($delivery->status === Delivery::STATUS_IN_TRANSIT) {
+        if (in_array($delivery->status, [Delivery::STATUS_ASSIGNED, Delivery::STATUS_IN_TRANSIT], true)) {
             $truck->update(['status' => 'on_delivery']);
             $driver->update(['status' => 'busy']);
         } elseif ($delivery->status === Delivery::STATUS_DELIVERED) {

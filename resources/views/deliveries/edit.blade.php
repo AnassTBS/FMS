@@ -16,13 +16,22 @@
 
                 @if(Auth::user()->isDriver())
                 <div class="space-y-6">
+                    @if($delivery->actual_fuel !== null)
+                    <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-800">
+                        Fuel data has already been submitted for this delivery. You can still view it in Delivery Details.
+                    </div>
+                    @endif
+
                     <div class="max-w-md">
                         <label for="status" class="block text-sm font-medium text-gray-700">Delivery Status</label>
-                        <select name="status" id="status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                        <select name="status" id="status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required {{ $delivery->actual_fuel !== null ? 'disabled' : '' }}>
                             @foreach(\App\Models\Delivery::statusLabels() as $value => $label)
                                 <option value="{{ $value }}" {{ old('status', $delivery->status) == $value ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
                         </select>
+                        @if($delivery->actual_fuel !== null)
+                            <input type="hidden" name="status" value="{{ old('status', $delivery->status) }}">
+                        @endif
                         <p class="mt-2 text-xs font-semibold text-slate-500">You can only update the status and fuel usage for deliveries assigned to you.</p>
                     </div>
 
@@ -30,11 +39,11 @@
                         <h4 class="text-sm font-bold text-slate-950 uppercase tracking-tight">Fuel Reporting</h4>
                         <div>
                             <label for="actual_fuel" class="block text-sm font-medium text-gray-700">Actual Fuel Used (Liters)</label>
-                            <input type="number" step="0.1" name="actual_fuel" id="actual_fuel" value="{{ old('actual_fuel', $delivery->actual_fuel) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <input type="number" step="0.1" name="actual_fuel" id="actual_fuel" value="{{ old('actual_fuel', $delivery->actual_fuel) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" {{ $delivery->actual_fuel !== null ? 'readonly' : '' }}>
                         </div>
                         <div>
-                            <label for="fuel_cost" class="block text-sm font-medium text-gray-700">Fuel Cost (Optional)</label>
-                            <input type="number" step="0.01" name="fuel_cost" id="fuel_cost" value="{{ old('fuel_cost', $delivery->fuel_cost) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <label for="fuel_cost" class="block text-sm font-medium text-gray-700">Fuel Cost</label>
+                            <input type="number" step="0.01" name="fuel_cost" id="fuel_cost" value="{{ old('fuel_cost', $delivery->fuel_cost) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" {{ $delivery->actual_fuel !== null ? 'readonly' : '' }}>
                         </div>
                     </div>
                 </div>
@@ -104,20 +113,6 @@
                         <input type="number" step="0.1" name="distance_km" id="distance_km" value="{{ old('distance_km', $delivery->distance_km) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
                     </div>
 
-                    <!-- Fuel Section for Admin -->
-                    <div id="fuel_section" class="{{ $delivery->status === 'delivered' ? '' : 'hidden' }} grid grid-cols-1 md:grid-cols-2 gap-6 col-span-full border-t border-slate-100 pt-6">
-                        <div class="col-span-full">
-                            <h4 class="text-sm font-bold text-slate-950 uppercase tracking-tight">Fuel Efficiency Data</h4>
-                        </div>
-                        <div>
-                            <label for="actual_fuel" class="block text-sm font-medium text-gray-700">Actual Fuel Used (Liters)</label>
-                            <input type="number" step="0.1" name="actual_fuel" id="actual_fuel" value="{{ old('actual_fuel', $delivery->actual_fuel) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                        </div>
-                        <div>
-                            <label for="fuel_cost" class="block text-sm font-medium text-gray-700">Fuel Cost (Optional)</label>
-                            <input type="number" step="0.01" name="fuel_cost" id="fuel_cost" value="{{ old('fuel_cost', $delivery->fuel_cost) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                        </div>
-                    </div>
                 </div>
                 @endif
 

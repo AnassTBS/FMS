@@ -134,7 +134,7 @@
             <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
                 <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
                     <i data-lucide="fuel" class="w-4 h-4 text-indigo-600"></i>
-                    Fuel Efficiency Monitoring
+                    Fuel Monitoring
                 </h3>
                 @if($delivery->fuel_status)
                     @php
@@ -146,22 +146,29 @@
                         $statusColor = $statusColors[$delivery->fuel_status] ?? 'bg-gray-100 text-gray-700 border-gray-200';
                     @endphp
                     <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border {{ $statusColor }}">
-                        {{ $delivery->fuel_status }} efficiency
+                        {{ strtoupper($delivery->fuel_status) }}
                     </span>
                 @endif
             </div>
             <div class="p-6">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="space-y-1">
                         <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Distance</p>
                         <p class="text-xl font-extrabold text-gray-900">{{ number_format($delivery->distance_km, 1) }} <span class="text-sm font-medium text-gray-400">km</span></p>
+                    </div>
+
+                    <div class="space-y-1">
+                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Truck Average Consumption</p>
+                        <p class="text-xl font-extrabold text-gray-900">{{ number_format($delivery->truck->average_consumption, 2) }} <span class="text-sm font-medium text-gray-400">L/100km</span></p>
                     </div>
                     
                     <div class="space-y-1">
                         <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Expected Fuel</p>
                         <p class="text-xl font-extrabold text-gray-900">{{ number_format($delivery->expected_fuel, 2) }} <span class="text-sm font-medium text-gray-400">Liters</span></p>
-                        <p class="text-[10px] font-bold text-gray-400 italic">Based on {{ $delivery->truck->average_consumption }} L/100km</p>
                     </div>
+                </div>
+
+                <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
                     <div class="space-y-1">
                         <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Actual Fuel</p>
@@ -179,6 +186,15 @@
                         <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Difference</p>
                         @if($delivery->fuel_difference !== null)
                             <p class="text-xl font-extrabold text-gray-900">{{ number_format($delivery->fuel_difference, 2) }} <span class="text-sm font-medium text-gray-400">Liters</span></p>
+                        @else
+                            <p class="text-xl font-extrabold text-gray-300">--</p>
+                        @endif
+                    </div>
+
+                    <div class="space-y-1">
+                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Fuel Cost</p>
+                        @if($delivery->fuel_cost !== null)
+                            <p class="text-xl font-extrabold text-gray-900">{{ number_format($delivery->fuel_cost, 2) }} <span class="text-sm font-medium text-gray-400">DH</span></p>
                         @else
                             <p class="text-xl font-extrabold text-gray-300">--</p>
                         @endif

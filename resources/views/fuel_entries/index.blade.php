@@ -154,4 +154,63 @@
             </div>
         </div>
     </div>
+
+    <div class="surface mt-6">
+        <div class="px-6 py-4 border-b border-slate-100">
+            <h3 class="text-sm font-bold text-gray-900">Delivery Fuel Monitoring Logs</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-100">
+                <thead>
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Delivery</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Truck Avg</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Distance</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Expected Fuel</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Actual Fuel</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Difference</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Fuel Cost</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-slate-100">
+                    @forelse($deliveryFuelLogs as $delivery)
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900">
+                                #{{ $delivery->id }} - {{ $delivery->origin }} → {{ $delivery->destination }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{{ number_format($delivery->truck?->average_consumption ?? 0, 2) }} L/100km</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{{ number_format($delivery->distance_km ?? 0, 1) }} km</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{{ number_format($delivery->expected_fuel ?? 0, 2) }} L</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{{ $delivery->actual_fuel !== null ? number_format($delivery->actual_fuel, 2) . ' L' : '--' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{{ $delivery->fuel_difference !== null ? number_format($delivery->fuel_difference, 2) . ' L' : '--' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{{ $delivery->fuel_cost !== null ? number_format($delivery->fuel_cost, 2) . ' DH' : '--' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @php
+                                    $statusClasses = [
+                                        'normal' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                        'warning' => 'bg-amber-50 text-amber-700 border-amber-200',
+                                        'critical' => 'bg-rose-50 text-rose-700 border-rose-200',
+                                    ];
+                                    $class = $statusClasses[$delivery->fuel_status] ?? 'bg-gray-50 text-gray-500 border-gray-200';
+                                @endphp
+                                <span class="status-badge {{ $class }}">
+                                    {{ $delivery->fuel_status ? strtoupper($delivery->fuel_status) : 'PENDING' }}
+                                </span>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8" class="px-6 py-12 text-center text-sm font-bold text-slate-500">
+                                No delivery fuel monitoring data found.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        <div class="border-t border-slate-100 px-6 py-4">
+            {{ $deliveryFuelLogs->links() }}
+        </div>
+    </div>
 </x-app-layout>

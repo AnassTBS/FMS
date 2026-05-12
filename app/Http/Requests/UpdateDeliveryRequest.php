@@ -28,7 +28,26 @@ class UpdateDeliveryRequest extends FormRequest
      */
     public function rules(): array
     {
-        $deliveryId = $this->route('delivery')->id;
+        $delivery = $this->route('delivery');
+        $deliveryId = $delivery->id;
+
+        if ($this->user()?->isDriver()) {
+            return [
+                'status' => ['required', Rule::in(Delivery::statuses())],
+                'actual_fuel' => [
+                    'nullable',
+                    'numeric',
+                    'min:0',
+                    'required_if:status,' . Delivery::STATUS_DELIVERED,
+                ],
+                'fuel_cost' => [
+                    'nullable',
+                    'numeric',
+                    'min:0',
+                    'required_with:actual_fuel',
+                ],
+            ];
+        }
 
         return [
             'truck_id' => [
@@ -72,8 +91,7 @@ class UpdateDeliveryRequest extends FormRequest
             'departure_date' => 'required|date',
             'arrival_date' => 'nullable|date|after:departure_date',
             'distance_km' => 'required|numeric|min:0.1',
-            'actual_fuel' => 'nullable|numeric|min:0',
-            'fuel_cost' => 'nullable|numeric|min:0',
+            'status' => ['required', Rule::in(Delivery::statuses())],
         ];
     }
 

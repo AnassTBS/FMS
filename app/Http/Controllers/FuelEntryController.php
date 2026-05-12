@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\FuelEntry;
+use App\Models\Delivery;
 use App\Models\Truck;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -34,6 +35,10 @@ class FuelEntryController extends Controller implements HasMiddleware
         }
 
         $fuelEntries = $query->paginate(15);
+        $deliveryFuelLogs = Delivery::with(['truck', 'driver'])
+            ->whereNotNull('expected_fuel')
+            ->latest()
+            ->paginate(15, ['*'], 'deliveries_page');
 
         // Calculate dashboard stats
         $stats = [
@@ -43,7 +48,7 @@ class FuelEntryController extends Controller implements HasMiddleware
             'avg_consumption' => FuelEntry::whereNotNull('real_consumption')->avg('real_consumption') ?? 0,
         ];
 
-        return view('fuel_entries.index', compact('fuelEntries', 'stats'));
+        return view('fuel_entries.index', compact('fuelEntries', 'deliveryFuelLogs', 'stats'));
     }
 
     /**
